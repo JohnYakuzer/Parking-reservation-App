@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Detalji Lokacije{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_location_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="det-wrapper">
+    <section class="det-hero">
+        <div class="det-container">
+            <div class="det-hero-content">
+                <h1>Uredi: <span id="header_location_name" class="det-brand">Lokaciju</span></h1>
+                <p class="det-hero-subtitle">Upravljajte kapacitetom, koordinatama i vizuelnim prikazom parking zone</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="det-section">
+        <div class="det-container">
+            <div class="det-card-main">
+                
+                <div id="alertMessage" class="det-alert" style="display: none;"></div>
+
+                <form id="editLocationForm">
+                    <div class="det-info-grid">
+                        <div class="det-info-text prof-info-card">
+                            <div class="det-info-header">
+                                <strong>Osnovne Informacije</strong>
+                            </div>
+                            
+                            <div class="prof-detail-item">
+                                <label class="det-stat-label">Naziv lokacije</label>
+                                <input type="text" id="location_name" name="location_name" class="det-input">
+                            </div>
+
+                            <div class="prof-detail-item">
+                                <label class="det-stat-label">Koordinate</label>
+                                <input type="text" id="location_coordinates" name="location_coordinates" class="det-input">
+                            </div>
+                        </div>
+
+                        <div class="det-preview-box prof-info-card status-card">
+                            <div class="det-info-header">
+                                <strong>Kapacitet Mjesta</strong>
+                            </div>
+
+                            <div class="det-stats-pill">
+                                <div class="det-stat-item">
+                                    <label class="det-stat-label">Slobodna</label>
+                                    <input type="number" id="free_locations" name="free_locations" min="0" class="det-input-small">
+                                </div>
+                                <div class="det-divider"></div>
+                                <div class="det-stat-item">
+                                    <label class="det-stat-label">Zauzeta</label>
+                                    <input type="number" id="used_location" disabled class="det-input-small readonly-input">
+                                </div>
+                            </div>
+                            <p class="al-sub-text" style="text-align: center; margin-top: 10px;">* Zauzeta mjesta se ažuriraju sistemski kroz rezervacije.</p>
+                        </div>
+                    </div>
+
+                    <div class="prof-table-section">
+                        <div class="det-label-wrapper">
+                            <label class="det-label">Vizuelni Prikaz</label>
+                        </div>
+                        
+                        <div class="det-image-upload-grid">
+                            <div class="det-upload-card">
+                                <label class="det-stat-label" style="color: var(--primary-color);">1. Slika Mape</label>
+                                <div class="img-preview-container">
+                                    <img id="current_map_pic" class="det-img-preview" style="display: none;">
+                                </div>
+                                <div class="upload-controls">
+                                    <input type="file" id="file_map_pic" accept="image/*" class="det-file-input">
+                                    <input type="text" id="url_map_pic" placeholder="ILI unesite URL slike" class="det-input-url">
+                                </div>
+                            </div>
+
+                            <div class="det-upload-card">
+                                <label class="det-stat-label" style="color: var(--primary-color);">2. Opisna Slika</label>
+                                <div class="img-preview-container">
+                                    <img id="current_desc_pic" class="det-img-preview" style="display: none;">
+                                </div>
+                                <div class="upload-controls">
+                                    <input type="file" id="file_desc_pic" accept="image/*" class="det-file-input">
+                                    <input type="text" id="url_desc_pic" placeholder="ILI unesite URL slike" class="det-input-url">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="det-actions">
+                        <button type="submit" class="det-btn-primary">Sačuvaj izmjene</button>
+                        <button type="button" onclick="window.location.href='/admin_locations'" class="det-btn-secondary-alt">Nazad na listu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+const pathParts = window.location.pathname.split("/");
+const locationId = pathParts[pathParts.length - 1];
+
+function loadData() {
+    fetch(`/api/admin/locations/${locationId}`)
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) return alert(data.error);
+        const loc = data.location;
+        
+        document.getElementById("header_location_name").innerText = loc.location_name;
+        document.getElementById("location_name").value = loc.location_name || "";
+        document.getElementById("location_coordinates").value = loc.location_coordinates || "";
+        document.getElementById("free_locations").value = loc.free_locations || 0;
+        document.getElementById("used_location").value = loc.used_location || 0;
+        
+        if(loc.map_url) {
+            document.getElementById("current_map_pic").src = loc.map_url;
+            document.getElementById("current_map_pic").style.display = "block";
+            if(loc.location_map_pic && loc.location_map_pic.startsWith("http")) {
+                document.getElementById("url_map_pic").value = loc.location_map_pic;
+            }
+        }
+        if(loc.desc_url) {
+            document.getElementById("current_desc_pic").src = loc.desc_url;
+            document.getElementById("current_desc_pic").style.display = "block";
+            if(loc.location_desc_pic && loc.location_desc_pic.startsWith("http")) {
+                document.getElementById("url_desc_pic").value = loc.location_desc_pic;
+            }
+        }
+    })
+    .catch(err => console.error("Greška pri učitavanju:", err));
+}
+
+document.getElementById("editLocationForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append("location_name", document.getElementById("location_name").value);
+    formData.append("location_coordinates", document.getElementById("location_coordinates").value);
+    formData.append("free_locations", document.getElementById("free_locations").value);
+    
+    const fMap = document.getElementById("file_map_pic").files[0];
+    const fDesc = document.getElementById("file_desc_pic").files[0];
+    if(fMap) formData.append("file_map_pic", fMap);
+    if(fDesc) formData.append("file_desc_pic", fDesc);
+    
+    formData.append("url_map_pic", document.getElementById("url_map_pic").value);
+    formData.append("url_desc_pic", document.getElementById("url_desc_pic").value);
+
+    fetch(`/api/admin/locations/${locationId}`, {
+        method: "PUT",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msg = document.getElementById("alertMessage");
+        msg.style.display = "block";
+        msg.className = "det-alert " + (data.error ? "alert-error" : "alert-success");
+        msg.innerText = data.error ? data.error : "Uspješno sačuvano!";
+        
+        if(!data.error) {
+            setTimeout(() => location.reload(), 1500);
+        }
+    })
+    .catch(err => alert("Greška pri slanju podataka."));
+});
+
+document.addEventListener("DOMContentLoaded", loadData);
+</script>
+{% endblock %}

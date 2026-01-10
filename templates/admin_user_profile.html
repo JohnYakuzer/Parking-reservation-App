@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Profil Korisnika{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="det-wrapper">
+    <section class="det-hero">
+        <div class="det-container">
+            <div class="det-hero-content">
+                <h1 id="userNameTitle">Učitavanje...</h1>
+                <p class="det-hero-subtitle">Pregled detaljnih informacija i aktivnosti korisnika u <span class="det-brand">parKING</span> sistemu</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="det-section">
+        <div class="det-container">
+            <div class="det-card-main">
+                
+                <div class="det-info-grid">
+                    <div class="det-info-text prof-info-card">
+                        <div class="det-info-header">
+                            <strong>Lični Podaci</strong>
+                        </div>
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Username</span>
+                            <p id="u_username" class="det-coords-text">--</p>
+                        </div>
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Email adresa</span>
+                            <p id="u_email" class="det-coords-text">--</p>
+                        </div>
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Broj telefona</span>
+                            <p id="u_phone" class="det-coords-text">--</p>
+                        </div>
+                    </div>
+
+                    <div class="det-preview-box prof-info-card status-card">
+                        <div class="det-info-header">
+                            <strong>Status Sistema</strong>
+                        </div>
+                        <div class="det-stats-pill">
+                            <div class="det-stat-item">
+                                <span class="det-stat-label">Privilegije</span>
+                                <span id="u_admin_status" class="status-badge">--</span>
+                            </div>
+                            <div class="det-divider"></div>
+                            <div class="det-stat-item">
+                                <span class="det-stat-label">Kazne</span>
+                                <span id="u_ticket_status" class="status-badge">--</span>
+                            </div>
+                        </div>
+                        <div class="prof-detail-item" style="text-align: center;">
+                            <span class="det-stat-label">ID Korisnika</span>
+                            <p id="u_id" class="det-main-id">#0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prof-table-section">
+                    <div class="det-label-wrapper">
+                        <label class="det-label">Registrovana Vozila</label>
+                    </div>
+                    <div class="det-card-container">
+                        <table class="al-table">
+                            <thead>
+                                <tr>
+                                    <th>Marka i Tip</th>
+                                    <th>Tablice</th>
+                                    <th>Boja</th>
+                                    <th>Godina</th>
+                                    <th>Karoserija</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vehicleTable">
+                                <tr><td colspan="6" class="al-loading">Učitavanje vozila...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="prof-table-section" style="margin-top: 40px;">
+                    <div class="det-label-wrapper">
+                        <label class="det-label">Istorija Rezervacija</label>
+                    </div>
+                    <div class="det-card-container">
+                        <table class="al-table">
+                            <thead>
+                                <tr>
+                                    <th>Lokacija</th>
+                                    <th>Trajanje (min)</th>
+                                    <th>Mjesto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resTable">
+                                <tr><td colspan="4" class="al-loading">Učitavanje rezervacija...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="prof-payment-section" style="margin-top: 40px;">
+                    <div class="det-label-wrapper">
+                        <label class="det-label">Metode Plaćanja</label>
+                    </div>
+                    <div id="paymentCardsContainer" class="prof-payment-grid"></div>
+                </div>
+
+                <div class="det-actions">
+                    <button onclick="window.history.back()" class="det-btn-primary">Vrati se nazad</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const userId = "{{ user_id }}";
+    fetch(`/api/admin/user-details/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) {
+                alert("Greška: " + data.error);
+                return;
+            }
+
+           
+            document.getElementById("userNameTitle").innerText = data.user_info.name;
+            document.getElementById("u_id").innerText = "#" + data.user_info.id;
+            document.getElementById("u_username").innerText = data.user_info.username;
+            document.getElementById("u_email").innerText = data.user_info.email;
+            document.getElementById("u_phone").innerText = data.user_info.phone || "Nije uneseno";
+            document.getElementById("u_admin_status").innerText = data.user_info.is_admin;
+            document.getElementById("u_ticket_status").innerText = data.user_info.has_ticket;
+
+            
+            const vTable = document.getElementById("vehicleTable");
+            vTable.innerHTML = "";
+            if(data.vehicles.length === 0) {
+                vTable.innerHTML = "<tr><td colspan='6' class='al-empty'>Nema registrovanih vozila.</td></tr>";
+            } else {
+                data.vehicles.forEach(v => {
+                    vTable.innerHTML += `
+                        <tr class="al-row-fade">
+                            <td><strong class="al-main-text">${v.mark}</strong> <br> <span class="al-sub-text">${v.type}</span></td>
+                            <td><span class="al-plate-badge">${v.plate}</span></td>
+                            <td>${v.color}</td>
+                            <td>${v.year}</td>
+                            <td>${v.body_type}</td>
+                            <td><span class="${v.registered === 'DA' ? 'al-stat-free' : 'al-stat-used'}">${v.registered}</span></td>
+                        </tr>`;
+                });
+            }
+
+            
+            const rTable = document.getElementById("resTable");
+            rTable.innerHTML = "";
+            if(data.reservations.length === 0) {
+                rTable.innerHTML = "<tr><td colspan='4' class='al-empty'>Nema istorije rezervacija.</td></tr>";
+            } else {
+                data.reservations.forEach(r => {
+                    rTable.innerHTML += `
+                        <tr class="al-row-fade">
+                            <td><strong class="al-main-text">${r.location}</strong></td>
+                            <td>${r.period} min</td>
+                            <td>#${r.spot}</td>
+                        </tr>`;
+                });
+            }
+
+           
+            const pContainer = document.getElementById("paymentCardsContainer");
+            pContainer.innerHTML = "";
+            if(data.payments.length === 0) {
+                pContainer.innerHTML = "<p class='al-empty' style='grid-column: 1/-1;'>Korisnik nema sačuvanih metoda plaćanja.</p>";
+            } else {
+                data.payments.forEach(p => {
+                    let imgName = "";
+                    let methodName = "";
+                    let cardContent = "";
+
+                    
+                    if (p.method === 'A') {
+                        imgName = 'visa.png';
+                        methodName = 'Visa';
+                        cardContent = `
+                            <p class="al-sub-text">Vlasnik: <strong class="al-main-text">${p.holder}</strong></p>
+                            <p class="al-sub-text">Broj: <strong class="al-main-text">**** ${p.last_4}</strong></p>
+                        `;
+                    } else if (p.method === 'B') {
+                        imgName = 'mastercard.png';
+                        methodName = 'MasterCard';
+                        cardContent = `
+                            <p class="al-sub-text">Vlasnik: <strong class="al-main-text">${p.holder}</strong></p>
+                            <p class="al-sub-text">Broj: <strong class="al-main-text">**** ${p.last_4}</strong></p>
+                        `;
+                    } else if (p.method === 'C') {
+                        imgName = 'paypall.png';
+                        methodName = 'PayPal';
+                        cardContent = `<p class="al-sub-text">Email:<br><strong class="al-main-text">${p.paypal}</strong></p>`;
+                    } else {
+                        imgName = 'card.png';
+                        methodName = 'Kartica';
+                        cardContent = `<p class="al-sub-text">Metoda: <strong class="al-main-text">${p.method}</strong></p>`;
+                    }
+                    
+                    pContainer.innerHTML += `
+                        <div class="prof-payment-card al-row-fade">
+                            <div class="prof-card-head">
+                                <h4 class="al-main-text">${methodName}</h4>
+                                <img src="/static/data/${imgName}" class="prof-card-icon" style="width: 45px; height: auto;" onerror="this.style.display='none'">
+                            </div>
+                            ${cardContent}
+                        </div>
+                    `;
+                });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Greška pri učitavanju profila.");
+        });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,208 @@
+.chk-wrapper {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+.chk-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+
+.chk-hero {
+    background: linear-gradient(135deg, #1a3a5f 0%, #0f172a 100%);
+    padding: 80px 0;
+    text-align: center;
+    color: white;
+}
+
+.chk-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.chk-hero p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+
+.chk-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+
+.chk-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+    padding: 30px;
+    border: 1px solid #e2e8f0;
+}
+
+.chk-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.chk-card-header h3 {
+    margin: 0;
+    color: #1a3a5f;
+    font-size: 1.3rem;
+}
+
+
+.chk-img-box {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.chk-img-box img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+}
+
+.chk-location-badge {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(26, 58, 95, 0.9);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.chk-loc-title {
+    font-size: 1.6rem;
+    color: #1a3a5f;
+    margin-bottom: 15px;
+}
+
+.chk-info-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+.chk-info-label {
+    font-weight: 700;
+    color: #64748b;
+    min-width: 100px;
+}
+
+.chk-info-val {
+    color: #1e293b;
+}
+
+
+.chk-form-group {
+    margin-bottom: 25px;
+}
+
+.chk-form-group label {
+    display: block;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chk-input-wrapper select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    font-size: 1rem;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chk-input-wrapper select:focus {
+    border-color: #f39c12;
+    background-color: white;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.1);
+}
+
+.chk-price-preview {
+    background: #fff9f0;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #f39c12;
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: #92400e;
+}
+
+
+.chk-actions {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chk-btn-confirm {
+    width: 100%;
+    padding: 18px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chk-btn-confirm:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+}
+
+.chk-btn-cancel {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.chk-btn-cancel:hover {
+    color: #ef4444;
+}
+
+
+@media (max-width: 850px) {
+    .chk-main-grid {
+        grid-template-columns: 1fr;
+    }
+    .chk-hero h1 { font-size: 2.2rem; }
+    .chk-main-grid { margin-top: 20px; }
+}

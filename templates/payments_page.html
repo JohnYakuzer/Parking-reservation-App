@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Plaćanja - parKING{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/payments_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="vh-wrapper">
+    <section class="vh-hero">
+        <div class="vh-container">
+            <h1>Načini Plaćanja</h1>
+            <p>Sigurno upravljajte vašim finansijskim opcijama u <span class="vh-brand">parKING</span> novčaniku.</p>
+        </div>
+    </section>
+
+    <section class="vh-section">
+        <div class="vh-container">
+            {% if not payments %}
+                <div class="vh-empty-state">
+                    <div class="vh-empty-icon"></div>
+                    <p>Nemate unijete opcije za plaćanje.</p>
+                    <a href="/add_payment" class="vh-btn-add-main">Dodaj prvu karticu</a>
+                </div>
+            {% else %}
+                <div id="paymentsContainer" class="vh-list">
+                    {% for p in payments %}
+                        {# Mapiranje tipa plaćanja na sliku #}
+                        {% if p.payment_method == 'A' %}
+                            {% set img_name = 'visa.png' %}
+                            {% set method_name = 'Visa' %}
+                        {% elif p.payment_method == 'B' %}
+                            {% set img_name = 'mastercard.png' %}
+                            {% set method_name = 'MasterCard' %}
+                        {% elif p.payment_method == 'C' %}
+                            {% set img_name = 'paypall.png' %}
+                            {% set method_name = 'PayPal' %}
+                        {% else %}
+                            {% set img_name = 'card.png' %}
+                            {% set method_name = 'Kartica' %}
+                        {% endif %}
+
+                        <div class="vh-card">
+                            <div class="vh-card-content">
+                                <div class="vh-image-box">
+                                    <img src="{{ url_for('static', filename='data/' + img_name) }}" alt="{{ method_name }}" class="vh-type-img">
+                                </div>
+                                
+                                <div class="vh-card-info">
+                                    <div class="vh-header">
+                                        <h3>{{ method_name }}</h3>
+                                        <span class="vh-type-badge">{{ 'Elektronsko' if p.payment_method == 'C' else 'Bankovna Kartica' }}</span>
+                                    </div>
+
+                                    <div class="vh-meta-grid">
+                                        {% if p.payment_method in ['A','B'] %}
+                                            <div class="vh-meta-item">
+                                                <span class="vh-label">Vlasnik:</span>
+                                                <span class="vh-val">{{ p.card_holder_name }}</span>
+                                            </div>
+                                            <div class="vh-meta-item">
+                                                <span class="vh-label">Broj kartice:</span>
+                                                <span class="vh-val vh-plate">**** **** **** {{ p.card_number[-3:] if p.card_number else 'N/A' }}</span>
+                                            </div>
+                                            <div class="vh-meta-item">
+                                                <span class="vh-label">Adresa:</span>
+                                                <span class="vh-val">{{ p.billing_address_1 }}</span>
+                                            </div>
+                                        {% elif p.payment_method == 'C' %}
+                                            <div class="vh-meta-item">
+                                                <span class="vh-label">Email adresa:</span>
+                                                <span class="vh-val">{{ p.paypall_email }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vh-card-actions">
+                                <button class="deleteBtn vh-btn-delete" data-id="{{ p.payment_id }}">
+                                    Obriši
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="vh-footer-actions">
+                <a href="/add_payment" class="vh-btn-add-new">Dodaj Novu Opciju</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const paymentId = btn.getAttribute("data-id");
+            if (!confirm("Da li ste sigurni da želite obrisati ovaj način plaćanja?")) return;
+
+            try {
+                const res = await fetch(`/api/payments/delete/${paymentId}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Greška prilikom brisanja plaćanja.");
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

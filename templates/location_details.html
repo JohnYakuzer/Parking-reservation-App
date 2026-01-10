@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Detalji Lokacije - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/location_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="det-wrapper">
+    <section class="det-hero">
+        <div class="det-container">
+            <div class="det-hero-content">
+                <h1 id="locationName">Loading...</h1>
+                <p class="det-hero-subtitle">Premium parking iskustvo uz <span class="det-brand">parKING</span> servis</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="det-section">
+        <div class="det-container">
+            <div class="det-card-main">
+                
+                <div class="det-visuals">
+                    <div class="det-map-box">
+                        <div class="det-label-wrapper">
+                            <label class="det-label">Interaktivna Mapa</label>
+                        </div>
+                        <img id="locationMap" src="https://via.placeholder.com/700x300?text=Učitavanje+mape..." alt="Map">
+                    </div>
+                    
+                    <div class="det-info-grid">
+                        <div id="locationInfo" class="det-info-text">
+                            <div class="det-info-header">
+                                <strong>Lokacija i Adresa</strong>
+                            </div>
+                            <p id="locationCoords" class="det-coords-text">Učitavanje adrese...</p>
+                            
+                            <div class="det-stats-pill">
+                                <div class="det-stat-item">
+                                    <span class="det-stat-label">Slobodno</span>
+                                    <span id="locationFree" class="det-val-free">0</span>
+                                </div>
+                                <div class="det-divider"></div>
+                                <div class="det-stat-item">
+                                    <span class="det-stat-label">Zauzeto</span>
+                                    <span id="locationUsed" class="det-val-used">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="det-description-box">
+                                <strong>Dodatne informacije:</strong>
+                                <p id="locationAdditional">Trenutno nema dodatnog opisa za ovu lokaciju.</p>
+                            </div>
+                        </div>
+
+                        <div class="det-preview-box">
+                            <div class="det-label-wrapper">
+                                <label class="det-label">Izgled Parkinga</label>
+                            </div>
+                            <img id="locationDesc" src="https://via.placeholder.com/300x200?text=Učitavanje+slike..." alt="Parking preview">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reservationFields" class="det-form-container">
+                    <h3 class="det-form-title">Planirajte dolazak</h3>
+                    <div class="det-form-grid">
+                        <div class="det-input-group">
+                            <label for="resDate">Datum dolaska</label>
+                            <input type="date" id="resDate">
+                        </div>
+                        <div class="det-input-group">
+                            <label for="resTime">Vrijeme dolaska</label>
+                            <input type="time" id="resTime">
+                        </div>
+                        <div class="det-input-group full-width">
+                            <label for="resDuration">Trajanje parkiranja (minuti)</label>
+                            <input type="number" id="resDuration" placeholder="Npr. 60, 120...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="det-actions">
+                    <button id="reserveBtn" class="det-btn-primary">Nastavi na plaćanje</button>
+                    <p id="fullNotice" class="det-notice-full">⚠️ Nažalost, ovaj parking je trenutno popunjen.</p>
+                    <div class="det-back-box">
+                        <button onclick="window.location.href='/locations'" class="det-btn-back">← Nazad na sve lokacije</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+async function loadLocationDetails() {
+    const pathParts = window.location.pathname.split("/");
+    const locationId = pathParts[pathParts.length - 1];
+    const noImagePlaceholder = "https://via.placeholder.com/700x300?text=Nema+slike+:+(";
+
+    try {
+        const res = await fetch(`/api/location_detail/${locationId}`);
+        if (!res.ok) throw new Error("Greška prilikom fetch-a detalja lokacije");
+        const data = await res.json();
+        const loc = data.location;
+
+        document.getElementById("locationName").textContent = loc.location_name || "Detalji Lokacije";
+        document.getElementById("locationCoords").textContent = loc.location_coordinates || "Adresa nije dostupna";
+        document.getElementById("locationFree").textContent = loc.free_locations ?? 0;
+        document.getElementById("locationUsed").textContent = loc.used_location ?? 0;
+        document.getElementById("locationAdditional").textContent = loc.additional_info || "Trenutno nema dodatnog opisa za ovu lokaciju.";
+
+        document.getElementById("locationMap").src = loc.location_map_pic || noImagePlaceholder;
+        document.getElementById("locationDesc").src = loc.location_desc_pic || noImagePlaceholder;
+
+        const reserveBtn = document.getElementById("reserveBtn");
+        if ((loc.free_locations ?? 0) <= 0) {
+            reserveBtn.disabled = true;
+            reserveBtn.classList.add("btn-disabled");
+            document.getElementById("fullNotice").style.display = "block";
+            document.getElementById("reservationFields").style.opacity = "0.5";
+            document.getElementById("reservationFields").style.pointerEvents = "none";
+        }
+
+        reserveBtn.addEventListener("click", () => {
+            const date = document.getElementById("resDate").value;
+            const time = document.getElementById("resTime").value;
+            const duration = document.getElementById("resDuration").value;
+
+            if(!date || !time || !duration) {
+                alert("Molimo unesite sve potrebne podatke za rezervaciju.");
+                return;
+            }
+
+            const resData = {
+                begin_date: date,
+                begin_time: time,
+                duration: duration
+            };
+            sessionStorage.setItem("pending_reservation", JSON.stringify(resData));
+            window.location.href = `/reservation_checkout/${locationId}`;
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+document.addEventListener("DOMContentLoaded", loadLocationDetails);
+</script>
+{% endblock %}

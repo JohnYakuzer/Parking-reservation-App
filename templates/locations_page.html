@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Lokacije - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/locations_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="loc-wrapper">
+    <section class="loc-hero">
+        <div class="loc-container">
+            <h1>Parking Lokacije</h1>
+            <p>Pronađite idealno mjesto za vaše vozilo u <span class="loc-brand">parKING</span> mreži.</p>
+        </div>
+    </section>
+
+    <section class="loc-section">
+        <div class="loc-container">
+            <div id="locationsContainer" class="loc-grid">
+                </div>
+        </div>
+    </section>
+</div>
+
+<script>
+async function fetchLocations() {
+    try {
+        const res = await fetch("/api/locations");
+        if (!res.ok) throw new Error("Greška prilikom fetch-a lokacija");
+
+        const data = await res.json();
+        const container = document.getElementById("locationsContainer");
+        container.innerHTML = "";
+
+        data.locations.forEach(loc => {
+            const card = document.createElement("div");
+            card.className = "loc-card";
+
+            const noImagePlaceholder = "https://via.placeholder.com/400x250?text=Nema+slike+:+(";
+            let imageSource = loc.location_map_pic || noImagePlaceholder;
+
+            card.innerHTML = `
+                <div class="loc-card-img">
+                    <img src="${imageSource}" alt="${loc.location_name}" onerror="this.src='${noImagePlaceholder}'">
+                    <div class="loc-status-badge ${loc.free_locations > 0 ? 'status-open' : 'status-full'}">
+                        ${loc.free_locations > 0 ? 'Dostupno' : 'Popunjeno'}
+                    </div>
+                </div>
+                <div class="loc-card-body">
+                    <h3>${loc.location_name || "Nepoznata lokacija"}</h3>
+                    <div class="loc-meta">
+                        <small>${loc.location_coordinates || "Koordinate nisu dostupne"}</small>
+                    </div>
+                    <div class="loc-stats">
+                        <div class="loc-stat-item">
+                            <span class="stat-label">Slobodno</span>
+                            <span class="stat-value free">${loc.free_locations}</span>
+                        </div>
+                        <div class="loc-stat-item">
+                            <span class="stat-label">Zauzeto</span>
+                            <span class="stat-value used">${loc.used_location}</span>
+                        </div>
+                    </div>
+                    <button class="loc-btn-reserve" onclick="handleReservation(${loc.location_id})">
+                        Rezerviši mjesto
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("locationsContainer").innerHTML = 
+            "<p class='loc-error'>Nažalost, došlo je do greške pri učitavanju lokacija. Molimo pokušajte kasnije.</p>";
+    }
+}
+
+async function handleReservation(locId) {
+    try {
+        const userRes = await fetch("/api/users/@me");
+        if (!userRes.ok) {
+            window.location.href = "/login";
+            return;
+        }
+        window.location.href = `/locations/details/${locId}`;
+    } catch (err) {
+        window.location.href = "/login";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", fetchLocations);
+</script>
+{% endblock %}

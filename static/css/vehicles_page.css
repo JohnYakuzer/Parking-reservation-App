@@ -1,0 +1,155 @@
+:root {
+    --primary-font: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+.vh-wrapper {
+    background-color: var(--light-bg);
+    padding-bottom: 120px;
+    min-height: 100vh;
+    font-family: var(--primary-font);
+}
+
+.vh-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 25px;
+}
+
+.vh-hero {
+    background: linear-gradient(rgba(26, 58, 95, 0.92), rgba(26, 58, 95, 0.92)), 
+                url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 100px 0;
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 60px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.vh-hero h1 { font-size: 3.5rem; margin-bottom: 15px; font-weight: 800; letter-spacing: -1px; }
+.vh-brand { color: var(--secondary-color); font-weight: 700; }
+
+.vh-list { display: flex; flex-direction: column; gap: 25px; }
+
+.vh-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    animation: vhFadeUp 0.6s ease;
+}
+
+.vh-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(26, 58, 95, 0.12); }
+
+.vh-card-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-grow: 1;
+}
+
+
+.vh-image-box {
+    width: 120px;
+    height: 120px;
+    background: #f8fafc;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    flex-shrink: 0;
+}
+
+.vh-type-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.vh-card-info { flex-grow: 1; }
+
+.vh-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.vh-header h3 { margin: 0; font-size: 1.6rem; color: var(--primary-color); font-weight: 800; }
+
+.vh-type-badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.vh-meta-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+    gap: 15px; 
+}
+
+.vh-label { display: block; font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 0.5px; }
+.vh-val { color: #1e293b; font-weight: 600; font-size: 1rem; }
+
+.vh-plate { 
+    background: #f1f5f9; 
+    padding: 3px 10px; 
+    border-radius: 6px; 
+    border: 2px solid #e2e8f0; 
+    font-family: 'Courier New', monospace; 
+    font-weight: 800;
+    color: #334155;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.vh-btn-delete {
+    padding: 12px 25px;
+    background-color: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #ffe4e6;
+    border-radius: 12px;
+    font-weight: 700;
+    font-family: var(--primary-font);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.vh-btn-delete:hover { background-color: #e11d48; color: white; border-color: #e11d48; }
+
+.vh-empty-state { text-align: center; padding: 80px 40px; background: white; border-radius: 24px; border: 2px dashed #e2e8f0; }
+.vh-empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; }
+
+.vh-btn-add-main, .vh-btn-add-new {
+    display: inline-block;
+    padding: 16px 35px;
+    background-color: #10b981;
+    color: white;
+    text-decoration: none;
+    border-radius: 14px;
+    font-weight: 700;
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.vh-btn-add-new:hover { background-color: #059669; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3); }
+.vh-footer-actions { text-align: center; margin-top: 50px; }
+
+@keyframes vhFadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .vh-card { flex-direction: column; gap: 20px; padding: 20px; }
+    .vh-card-content { flex-direction: column; text-align: center; gap: 15px; }
+    .vh-header { justify-content: center; flex-direction: column; gap: 5px; }
+    .vh-meta-grid { grid-template-columns: 1fr 1fr; }
+    .vh-btn-delete { width: 100%; }
+}

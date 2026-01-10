@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Sve Rezervacije{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_reservations.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="al-wrapper">
+    <section class="al-hero">
+        <div class="al-container">
+            <h1>Admin Panel: Rezervacije</h1>
+            <p>Pregled i upravljanje svim aktivnim i završenim rezervacijama u <span class="al-brand">parKING</span> sistemu.</p>
+        </div>
+    </section>
+
+    <section class="al-section">
+        <div class="al-container">
+            <div class="al-top-bar">
+                <div class="al-title-box">
+                    <h2>Sve Rezervacije</h2>
+                    <p>Upravljanje korisničkim terminima i statusima</p>
+                </div>
+            </div>
+
+            <div id="alertBox" style="display: none; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 600;"></div>
+
+            <div class="al-card-container">
+                <table class="al-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Korisnik</th>
+                            <th>Vozilo</th>
+                            <th>Lokacija</th>
+                            <th>Period</th>
+                            <th style="text-align: center;">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsTable">
+                        <tr>
+                            <td colspan="6" class="al-loading">Učitavanje podataka...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+function loadReservations() {
+    fetch('/api/admin/reservations/all')
+    .then(res => res.json())
+    .then(data => {
+        const table = document.getElementById("reservationsTable");
+        table.innerHTML = "";
+        if(!data.reservations || data.reservations.length === 0) {
+            table.innerHTML = "<tr><td colspan='6' class='al-empty'>Nema pronađenih rezervacija.</td></tr>";
+            return;
+        }
+        data.reservations.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.className = "al-row-fade";
+            tr.innerHTML = `
+                <td><span class="al-id-badge">#${r.reservation_id}</span></td>
+                <td>
+                    <div class="al-user-info">
+                        <strong class="al-main-text">${r.user_name}</strong>
+                        <span class="al-sub-text">${r.username}</span>
+                    </div>
+                </td>
+                <td><span class="al-plate-badge">${r.vehicle_plate}</span></td>
+                <td><strong class="al-coord-text">${r.location_name}</strong></td>
+                <td><span class="al-stat-free">${r.time_period} min</span></td>
+                <td style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+                    <button onclick="window.location.href='/admin_reservation_info/${r.reservation_id}'" class="al-btn-details">Detalji</button>
+                    <button onclick="removeReservation(${r.reservation_id})" class="al-btn-delete">Ukloni</button>
+                </td>
+            `;
+            table.appendChild(tr);
+        });
+    })
+    .catch(err => {
+        console.error("Greška pri učitavanju:", err);
+        document.getElementById("reservationsTable").innerHTML = "<tr><td colspan='6' class='al-error'>Greška pri učitavanju podataka.</td></tr>";
+    });
+}
+
+function removeReservation(id) {
+    const reason = prompt("Unesite razlog otkazivanja rezervacije (korisnik će dobiti obavještenje):");
+    if (!reason) return;
+
+    fetch(`/api/admin/reservations/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) alert(data.error);
+        else {
+            alert("Rezervacija uspješno uklonjena.");
+            loadReservations();
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadReservations);
+</script>
+{% endblock %}

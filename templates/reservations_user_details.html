@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Detalji Rezervacije - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="rd-wrapper">
+    <section class="rd-hero">
+        <div class="rd-container">
+            <h1>Pregled Rezervacije</h1>
+            <p>Svi detalji vašeg termina na <span class="rd-brand">parKING</span> lokaciji.</p>
+        </div>
+    </section>
+
+    <section class="rd-section">
+        <div class="rd-container">
+            <div id="loading" class="rd-loading">
+                <div class="rd-spinner"></div>
+                <p>Učitavanje detalja...</p>
+            </div>
+
+            <div id="detailsContainer" class="rd-card-main" style="display:none;">
+                <div class="rd-grid">
+                    <div class="rd-info-block">
+                        <div class="rd-block-header">
+                            <h3>Lokacija</h3>
+                        </div>
+                        <div class="rd-info-body">
+                            <p class="rd-item"><strong>Naziv:</strong> <span id="locName"></span></p>
+                            <p class="rd-item"><strong>Koordinate:</strong> <span id="locCoords"></span></p>
+                            <p class="rd-item"><strong>Broj mjesta:</strong> <span id="spotNumber" class="rd-highlight"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="rd-info-block">
+                        <div class="rd-block-header">
+                            <h3>Vozilo</h3>
+                        </div>
+                        <div class="rd-info-body">
+                            <p class="rd-item"><strong>Marka:</strong> <span id="vehMark"></span></p>
+                            <p class="rd-item"><strong>Tablice:</strong> <span id="vehPlate" class="rd-plate-box"></span></p>
+                            <p class="rd-item"><strong>Tip:</strong> <span id="vehType"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rd-payment-summary">
+                    <div class="rd-block-header">
+                        <h3>Vrijeme i Plaćanje</h3>
+                    </div>
+                    <div class="rd-payment-grid">
+                        <div class="rd-pay-item">
+                            <span class="rd-label">Datum početka</span>
+                            <span id="resBegin" class="rd-val"></span>
+                        </div>
+                        <div class="rd-pay-item">
+                            <span class="rd-label">Trajanje</span>
+                            <span class="rd-val"><span id="resPeriod"></span> min</span>
+                        </div>
+                        <div class="rd-pay-item">
+                            <span class="rd-label">Način plaćanja</span>
+                            <span id="payMethod" class="rd-val"></span>
+                        </div>
+                        <div class="rd-pay-item">
+                            <span class="rd-label">Detalji plaćanja</span>
+                            <span id="payDetails" class="rd-val"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rd-actions">
+                    <button onclick="window.location.href='/my_reservations'" class="rd-btn-back">
+                        ← Nazad na moje rezervacije
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const pathParts = window.location.pathname.split("/");
+    const resId = pathParts[pathParts.length - 1];
+
+    try {
+        const response = await fetch(`/api/reservations/detail/${resId}`);
+        if (!response.ok) throw new Error("Rezervacija nije pronađena.");
+        
+        const data = await response.json();
+
+        document.getElementById("locName").textContent = data.location.name;
+        document.getElementById("locCoords").textContent = data.location.coordinates;
+        document.getElementById("spotNumber").textContent = data.reserved_location;
+
+        document.getElementById("vehMark").textContent = data.vehicle.mark;
+        document.getElementById("vehPlate").textContent = data.vehicle.plate;
+        document.getElementById("vehType").textContent = data.vehicle.type;
+
+        document.getElementById("resBegin").textContent = data.begin_date;
+        document.getElementById("resPeriod").textContent = data.reservation_time_period;
+        
+        document.getElementById("payMethod").textContent = data.payment.method;
+        document.getElementById("payDetails").textContent = data.payment.details;
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("detailsContainer").style.display = "block";
+
+    } catch (err) {
+        document.getElementById("loading").innerHTML = `<p class="rd-error">${err.message}</p>`;
+    }
+});
+</script>
+{% endblock %}

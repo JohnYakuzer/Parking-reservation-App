@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Dodaj Lokaciju{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_add_location.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="reg-page-container">
+    <div class="reg-card">
+        <div class="reg-header">
+            <h1>Nova Lokacija</h1>
+            <p>Dodajte novi parking objekat u <span class="reg-brand-text">parKING</span> mrežu</p>
+        </div>
+
+        <div id="errorMessage" class="al-error-box" style="display: none;"></div>
+
+        <form id="addLocationForm" class="reg-form">
+            <div class="reg-group">
+                <label for="location_name">Naziv lokacije (Adresa)</label>
+                <input type="text" id="location_name" name="location_name" placeholder="npr. Parking Centar" required>
+            </div>
+
+            <div class="reg-group">
+                <label for="location_coordinates">Koordinate (GPS ili Blok)</label>
+                <input type="text" id="location_coordinates" name="location_coordinates" placeholder="npr. 42.43, 19.26" required>
+            </div>
+
+            <div class="reg-row">
+                <div class="reg-group">
+                    <label for="free_locations">Slobodna mjesta</label>
+                    <input type="number" id="free_locations" name="free_locations" value="0" min="0">
+                </div>
+                <div class="reg-group">
+                    <label for="used_location">Zauzeta mjesta</label>
+                    <input type="number" id="used_location" name="used_location" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="al-image-section">
+                <label class="al-section-label">1. Slika Mape (Map Pic)</label>
+                <div class="reg-group">
+                    <span class="al-input-subtext">Otpremi fajl:</span>
+                    <input type="file" id="file_map_pic" accept="image/*">
+                </div>
+                <div class="al-or-divider">ILI</div>
+                <div class="reg-group">
+                    <span class="al-input-subtext">Unesi URL:</span>
+                    <input type="text" id="url_map_pic" placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="al-image-section">
+                <label class="al-section-label">2. Opisna Slika (Desc Pic)</label>
+                <div class="reg-group">
+                    <span class="al-input-subtext">Otpremi fajl:</span>
+                    <input type="file" id="file_desc_pic" accept="image/*">
+                </div>
+                <div class="al-or-divider">ILI</div>
+                <div class="reg-group">
+                    <span class="al-input-subtext">Unesi URL:</span>
+                    <input type="text" id="url_desc_pic" placeholder="https://...">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <button type="submit" class="reg-btn-submit" style="flex: 2; margin-top: 0;">
+                    <span>Sačuvaj Lokaciju</span>
+                </button>
+                <button type="button" onclick="window.location.href='/admin_locations'" class="reg-btn-submit" style="flex: 1; margin-top: 0; background-color: #64748b;">
+                    <span>Nazad</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById("addLocationForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const errorDiv = document.getElementById("errorMessage");
+    errorDiv.style.display = "none";
+
+    const name = document.getElementById("location_name").value.trim();
+    const coords = document.getElementById("location_coordinates").value.trim();
+    
+    if (!name || !coords) {
+        showError("Morate unijeti naziv i koordinate lokacije.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("location_name", name);
+    formData.append("location_coordinates", coords);
+    formData.append("free_locations", document.getElementById("free_locations").value);
+    formData.append("used_location", document.getElementById("used_location").value);
+    
+    const fileMap = document.getElementById("file_map_pic").files[0];
+    const fileDesc = document.getElementById("file_desc_pic").files[0];
+    
+    if (fileMap) formData.append("file_map_pic", fileMap);
+    if (fileDesc) formData.append("file_desc_pic", fileDesc);
+    
+    formData.append("url_map_pic", document.getElementById("url_map_pic").value.trim());
+    formData.append("url_desc_pic", document.getElementById("url_desc_pic").value.trim());
+
+    fetch("/api/admin/locations", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            showError(data.error);
+        } else {
+            alert("Uspješno dodana lokacija!");
+            window.location.href = "/admin_locations";
+        }
+    })
+    .catch(err => {
+        console.error("Greška:", err);
+        showError("Sistemska greška pri povezivanju sa serverom.");
+    });
+
+    function showError(msg) {
+        errorDiv.innerText = msg;
+        errorDiv.style.display = "block";
+        window.scrollTo(0, 0);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{
+  "vehicles": [
+    {
+      "type": "Automobil",
+      "body_types": ["Limuzina", "Hatchback", "SUV", "Kabriolet", "Coupe", "Kombi"]
+    },
+    {
+      "type": "Kamion",
+      "body_types": ["Cisterna", "Platforma", "Sanduk", "Kontejnerski", "Dizalica"]
+    },
+    {
+      "type": "Kombi",
+      "body_types": ["Putnički", "Transportni", "Panel Van", "Pick-up"]
+    },
+    {
+      "type": "Motor",
+      "body_types": ["Standard", "Sport", "Touring", "Cruiser", "Scooter", "Off-road"]
+    },
+    {
+      "type": "Autobus",
+      "body_types": ["Gradski", "Međugradski", "Mini-bus", "Školski autobus"]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/faq_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="faq-wrapper">
+    <section class="faq-hero">
+        <div class="faq-container">
+            <h1>Često Postavljana Pitanja</h1>
+            <p>Sve što treba da znate o korišćenju <span class="faq-brand">parKING</span> servisa na jednom mjestu.</p>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <div class="faq-container">
+            <div class="faq-list">
+                
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Kako mogu da rezervišem parking mjesto?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Rezervaciju možete izvršiti preko naše mape lokacija. Odaberite željeni parking, unesite vrijeme dolaska i trajanje, te potvrdite rezervaciju.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Koji su načini plaćanja dostupni?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Podržavamo plaćanje svim platnim karticama (Visa, MasterCard), kao i plaćanje putem PayPal-a i SMS servisa za određene zone.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Da li je moj automobil osiguran dok je na parkingu?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Da, sve naše premium lokacije su pod 24/7 video nadzorom i posjeduju polise osiguranja od fizičkih oštećenja i krađe.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Šta ako zakasnim sa preuzimanjem vozila?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Sistem će automatski obračunati dodatno vrijeme po standardnoj tarifi te lokacije. Dodatni iznos možete platiti na izlazu ili putem aplikacije.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Mogu li otkazati rezervaciju?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Otkazivanje je besplatno do 2 sata prije zakazanog termina. Nakon toga se naplaćuje naknada u iznosu od 20% cijene rezervacije.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Kako funkcioniše sistem prepoznavanja tablica?</span>
+                        <span class="faq-toggle">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Naše pametne kamere na ulazu automatski očitavaju vašu registarsku oznaku i podižu rampu ukoliko imate aktivnu rezervaciju u sistemu.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const faqItem = button.parentElement;
+            
+
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if (item !== faqItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            faqItem.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

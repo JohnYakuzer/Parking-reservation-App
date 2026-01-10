@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Detalji Vozila{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_vehicle_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="det-wrapper">
+    <section class="det-hero">
+        <div class="det-container">
+            <div class="det-hero-content">
+                <h1>Vozilo: <span id="header_plate" class="det-brand">...</span></h1>
+                <p class="det-hero-subtitle">Detaljni tehnički podaci, podaci o vlasniku i istorija parkiranja</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="det-section">
+        <div class="det-container">
+            <div class="det-card-main">
+                
+                <div class="det-info-grid">
+                    <div class="det-info-text prof-info-card">
+                        <div class="det-info-header">
+                            <strong>Tehnički Podaci</strong>
+                        </div>
+                        <div class="v-details-list">
+                            <div class="prof-detail-item">
+                                <span class="det-stat-label">Marka i Tip</span>
+                                <p class="det-coords-text"><span id="v_mark">--</span> <span id="v_type"></span></p>
+                            </div>
+                            <div class="prof-detail-item">
+                                <span class="det-stat-label">Registarske oznake</span>
+                                <p class="al-plate-badge" id="v_plate" style="display: inline-block; margin-top: 5px;">--</p>
+                            </div>
+                            <div class="prof-detail-item">
+                                <span class="det-stat-label">Boja i Karoserija</span>
+                                <p class="det-coords-text"><span id="v_color">--</span> (<span id="v_body">--</span>)</p>
+                            </div>
+                            <div class="prof-detail-item">
+                                <span class="det-stat-label">Godište</span>
+                                <p id="v_year" class="det-coords-text">--</p>
+                            </div>
+                            <div class="prof-detail-item">
+                                <span class="det-stat-label">Status registracije</span>
+                                <p id="v_reg" class="det-coords-text">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="det-preview-box">
+                        <div class="prof-info-card status-card" style="margin-bottom: 25px;">
+                            <div class="det-info-header">
+                                <strong>Vlasnik</strong>
+                            </div>
+                            <div class="owner-mini-info">
+                                <p class="det-coords-text" id="o_name">--</p>
+                                <p class="al-sub-text" id="o_email">--</p>
+                                <p class="al-sub-text" id="o_phone">--</p>
+                                <button id="view_owner_btn" class="det-btn-secondary">Pogledaj profil vlasnika</button>
+                            </div>
+                        </div>
+
+                        <div class="prof-info-card" style="border-left: 6px solid var(--secondary-color);">
+                            <div class="det-info-header">
+                                <strong>Trenutni Parking</strong>
+                            </div>
+                            <div class="det-stats-pill">
+                                <div class="det-stat-item">
+                                    <span class="det-stat-label">Lokacija</span>
+                                    <span id="curr_loc" class="status-badge">--</span>
+                                </div>
+                                <div class="det-divider"></div>
+                                <div class="det-stat-item">
+                                    <span class="det-stat-label">Mjesto</span>
+                                    <span id="curr_spot" class="status-badge">--</span>
+                                </div>
+                            </div>
+                            <p class="al-sub-text">Koordinate: <span id="curr_coords">--</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prof-table-section">
+                    <div class="det-label-wrapper">
+                        <label class="det-label">Istorija Rezervacija</label>
+                    </div>
+                    <div class="det-card-container">
+                        <table class="al-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Lokacija</th>
+                                    <th>Koordinate</th>
+                                    <th>Period (min)</th>
+                                    <th>Mjesto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="res_table_body">
+                                <tr><td colspan="5" class="al-loading">Učitavanje istorije...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="det-actions">
+                    <button onclick="window.location.href='/admin_vehicles'" class="det-btn-primary">Nazad na listu</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+const carId = window.location.pathname.split("/").pop();
+
+function loadVehicleDetails() {
+    fetch(`/api/admin/vehicle-details/${carId}`)
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) return alert(data.error);
+
+        const v = data.vehicle;
+        const o = data.owner;
+        const c = data.current_location;
+
+    
+        document.getElementById("header_plate").innerText = v.plate;
+        document.getElementById("v_mark").innerText = v.mark;
+        document.getElementById("v_type").innerText = v.type;
+        document.getElementById("v_plate").innerText = v.plate;
+        document.getElementById("v_color").innerText = v.color;
+        document.getElementById("v_year").innerText = v.year;
+        document.getElementById("v_body").innerText = v.body;
+        
+        const regEl = document.getElementById("v_reg");
+        regEl.innerText = v.is_registered ? "REGISTROVANO" : "NEREGISTROVANO";
+        regEl.className = v.is_registered ? "al-stat-free" : "al-stat-used";
+
+     
+        document.getElementById("o_name").innerText = o.name;
+        document.getElementById("o_email").innerText = o.email;
+        document.getElementById("o_phone").innerText = o.phone;
+        document.getElementById("view_owner_btn").onclick = () => window.location.href = `/admin_user_info/${o.id}`;
+
+       
+        document.getElementById("curr_loc").innerText = c.name;
+        document.getElementById("curr_coords").innerText = c.coordinates;
+        document.getElementById("curr_spot").innerText = "#" + c.spot;
+
+   
+        const tableBody = document.getElementById("res_table_body");
+        tableBody.innerHTML = "";
+        if(data.reservations.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='5' class='al-empty'>Nema istorije rezervacija za ovo vozilo.</td></tr>";
+        } else {
+            data.reservations.forEach(r => {
+                tableBody.innerHTML += `
+                    <tr class="al-row-fade">
+                        <td><span class="al-sub-text">#${r.reservation_id}</span></td>
+                        <td><strong class="al-main-text">${r.location}</strong></td>
+                        <td><span class="al-sub-text">${r.coordinates}</span></td>
+                        <td>${r.time_period} min</td>
+                        <td><span class="al-plate-badge">#${r.reserved_spot}</span></td>
+                    </tr>
+                `;
+            });
+        }
+    })
+    .catch(err => console.error("Greška:", err));
+}
+
+document.addEventListener("DOMContentLoaded", loadVehicleDetails);
+</script>
+{% endblock %}

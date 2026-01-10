@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Login - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="log-page-container">
+    <div class="log-card">
+        <div class="log-header">
+            <h1>Login</h1>
+            <p>Unesite vaše podatke za pristup <span class="log-brand-text">parKING</span> nalogu</p>
+        </div>
+
+        <form id="loginForm" class="log-form">
+            <div class="log-group">
+                <label for="username_email">Username ili Email</label>
+                <input type="text" id="username_email" name="username_email" required placeholder="Unesite username ili email">
+            </div>
+
+            <div class="log-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Unesite lozinku">
+            </div>
+
+            <button type="submit" class="log-btn-submit">
+                <span>Prijavi se</span>
+            </button>
+        </form>
+
+        <div class="log-footer-links">
+            <a href="/forgot_password" class="log-link-forgot">Zaboravili ste lozinku?</a>
+            <p>Nemate nalog? <a href="/register" class="log-link-reg">Registrujte se odmah!</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username_email = document.getElementById("username_email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username_email || !password) {
+        alert("Sva polja su obavezna.");
+        return;
+    }
+
+    const data = { username: username_email, password };
+
+    try {
+        const res = await fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            alert(result.message);
+            window.location.href = "/";
+        } else {
+            alert(result.error || "Došlo je do greške prilikom logina.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Došlo je do greške prilikom slanja zahteva.");
+    }
+});
+</script>
+{% endblock %}

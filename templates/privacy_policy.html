@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Polisa Privatnosti - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/privacy_policy.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pp-wrapper">
+    <section class="pp-hero">
+        <div class="pp-container">
+            <h1>Polisa Privatnosti</h1>
+            <p>Vaša privatnost i sigurnost podataka su temelj povjerenja u <span class="pp-brand">parKING</span> servisu.</p>
+        </div>
+    </section>
+
+    <section class="pp-content-section">
+        <div class="pp-container">
+            <div class="pp-card">
+                <div class="pp-article">
+                    <h2>1. Uvod</h2>
+                    <p>Dobrodošli na <strong>parKING</strong>. Ova Polisa privatnosti objašnjava kako prikupljamo, koristimo, štitimo i dijelimo vaše lične podatke prilikom korišćenja naše platforme i usluga parkiranja.</p>
+                </div>
+
+                <div class="pp-article">
+                    <h2>2. Podaci koje prikupljamo</h2>
+                    <p>Kako bismo vam pružili vrhunsku uslugu, prikupljamo sljedeće kategorije podataka:</p>
+                    <ul>
+                        <li><strong>Lični podaci:</strong> Ime, prezime, email adresa i broj telefona prilikom registracije.</li>
+                        <li><strong>Podaci o vozilu:</strong> Marka, model i registarska oznaka radi automatskog prepoznavanja na lokacijama.</li>
+                        <li><strong>Finansijski podaci:</strong> Podaci o plaćanju (putem PayPal-a ili kartica) koji se obrađuju putem sigurnih procesora plaćanja.</li>
+                        <li><strong>Logički podaci:</strong> Vrijeme ulaska/izlaska sa parkinga i istorija rezervacija.</li>
+                    </ul>
+                </div>
+
+                <div class="pp-article">
+                    <h2>3. Kako koristimo vaše podatke</h2>
+                    <p>Vaše podatke koristimo isključivo u svrhe:</p>
+                    <ul>
+                        <li>Realizacije rezervacija i upravljanja pristupom parkinzima.</li>
+                        <li>Procesuiranja uplata i izdavanja računa.</li>
+                        <li>Slanja važnih obavještenja o statusu vaših rezervacija.</li>
+                        <li>Unapređenja sigurnosti naših lokacija putem video nadzora.</li>
+                    </ul>
+                </div>
+
+                <div class="pp-article">
+                    <h2>4. Sigurnost podataka</h2>
+                    <p>Primjenjujemo najsavremenije tehničke i organizacione mjere zaštite:</p>
+                    <p>Sve transakcije su zaštićene <strong>SSL enkripcijom</strong>, a podaci o karticama se ne čuvaju direktno na našim serverima, već kod licenciranih provajdera finansijskih usluga. Naše lokacije koriste zatvorene sisteme video nadzora kojima pristupa samo ovlašćeno osoblje.</p>
+                </div>
+
+                <div class="pp-article">
+                    <h2>5. Dijeljenje podataka sa trećim licima</h2>
+                    <p><strong>parKING</strong> nikada ne prodaje niti iznajmljuje vaše lične podatke. Podatke dijelimo samo sa neophodnim partnerima (npr. banke, PayPal) isključivo radi izvršenja transakcija ili ukoliko to zakon nalaže.</p>
+                </div>
+
+                <div class="pp-article">
+                    <h2>6. Vaša prava</h2>
+                    <p>U svakom trenutku imate pravo da zatražite pristup vašim podacima, ispravku netačnih podataka ili potpuno brisanje vašeg naloga i pratećih informacija iz našeg sistema.</p>
+                </div>
+
+                <div class="pp-footer">
+                    <p>Posljednji put ažurirano: Januar, 2026.</p>
+                    <a href="/" class="pp-btn-back">Povratak na početnu</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

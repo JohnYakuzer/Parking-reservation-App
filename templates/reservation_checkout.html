@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Rezervacija - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reservation_checkout.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="chk-wrapper">
+    <section class="chk-hero">
+        <div class="chk-container">
+            <h1>Potvrda Rezervacije</h1>
+            <p>Još samo jedan korak do Vašeg sigurnog parking mjesta.</p>
+        </div>
+    </section>
+
+    <section class="chk-section">
+        <div class="chk-container">
+            <div class="chk-main-grid">
+                
+                <div class="chk-card chk-summary">
+                    <div class="chk-card-header">
+                        <h3>Pregled Lokacije</h3>
+                    </div>
+                    
+                    <div class="chk-img-box">
+                        <img id="locationMap" src="https://via.placeholder.com/450x250?text=Učitavanje..." alt="Map">
+                        <div class="chk-location-badge">Odabrana Lokacija</div>
+                    </div>
+
+                    <div class="chk-details">
+                        <h2 id="locationName" class="chk-loc-title">Učitavanje...</h2>
+                        <div class="chk-info-row">
+                            <span class="chk-info-label">📍 Adresa:</span>
+                            <span id="locationCoords" class="chk-info-val">...</span>
+                        </div>
+                        <div class="chk-info-row">
+                            <span class="chk-info-label">✨ Status:</span>
+                            <span class="chk-info-val">Slobodno: <strong id="locationFree">0</strong> | Zauzeto: <strong id="locationUsed">0</strong></span>
+                        </div>
+                        <div class="chk-info-row">
+                            <span class="chk-info-label">📝 Napomena:</span>
+                            <span id="locationAdditional" class="chk-info-val">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chk-card chk-form-box">
+                    <div class="chk-card-header">
+                        <h3>Plaćanje i Vozilo</h3>
+                    </div>
+
+                    <div class="chk-form-group">
+                        <label for="vehicleSelect">Odaberite Vaše Vozilo</label>
+                        <div class="chk-input-wrapper">
+                            <select id="vehicleSelect">
+                                <option value="">-- Odaberite vozilo --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="chk-form-group">
+                        <label for="paymentSelect">Način Plaćanja</label>
+                        <div class="chk-input-wrapper">
+                            <select id="paymentSelect">
+                                <option value="">-- Odaberite karticu ili PayPal --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="chk-price-preview">
+                        <p>Sigurna transakcija putem <strong>parKING</strong> sistema.</p>
+                    </div>
+
+                    <div class="chk-actions">
+                        <button id="confirmReservation" class="chk-btn-confirm">
+                            Potvrdi Rezervaciju
+                        </button>
+                        <button onclick="window.history.back()" class="chk-btn-cancel">Odustani</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+function loadReservationCheckout() {
+    var locationId = window.location.pathname.split("/").pop();
+    var pending = JSON.parse(sessionStorage.getItem("pending_reservation") || "{}");
+
+    /* LOCATION */
+    fetch("/api/location_detail/" + locationId)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var loc = data.location || {};
+            document.getElementById("locationName").textContent = loc.location_name || "N/A";
+            document.getElementById("locationMap").src = loc.location_map_pic || "https://via.placeholder.com/450x250";
+            document.getElementById("locationCoords").textContent = loc.location_coordinates || "N/A";
+            document.getElementById("locationFree").textContent = loc.free_locations || 0;
+            document.getElementById("locationUsed").textContent = loc.used_location || 0;
+            document.getElementById("locationAdditional").textContent = loc.additional_info || "Nema dodatnih informacija.";
+        });
+
+    /* VEHICLES */
+    fetch("/api/vehicles/my_vehicles")
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var vehicles = data.vehicles || [];
+            var select = document.getElementById("vehicleSelect");
+            vehicles.forEach(function(v) {
+                var o = document.createElement("option");
+                o.value = v.car_id;
+                o.textContent = v.vehicle_type + " (" + v.vehicle_production_mark + ") - " + v.vehicle_licence_plate;
+                select.appendChild(o);
+            });
+        });
+
+    /* PAYMENTS */
+    fetch("/api/payments/user/@me")
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var payments = data.payments || [];
+            var select = document.getElementById("paymentSelect");
+            payments.forEach(function(p) {
+                var o = document.createElement("option");
+                o.value = p.payment_id;
+                if (p.payment_method === "C") {
+                    o.textContent = "PayPal (" + p.paypall_email + ")";
+                } else {
+                    o.textContent = (p.payment_method === 'A' ? 'Visa' : 'MasterCard') + " (" + (p.card_number ? p.card_number.slice(-4) : "****") + ")";
+                }
+                select.appendChild(o);
+            });
+        });
+
+    /* CONFIRM */
+    document.getElementById("confirmReservation").onclick = function () {
+        var vehicleId = document.getElementById("vehicleSelect").value;
+        var paymentId = document.getElementById("paymentSelect").value;
+
+        if (!vehicleId || !paymentId) {
+            alert("Molimo odaberite vozilo i način plaćanja.");
+            return;
+        }
+
+        fetch("/api/reservations/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                location_id: locationId,
+                vehicle_id: vehicleId,
+                payment_id: paymentId,
+                reserved_location: "A1",
+                reservation_time_period: pending.duration || "60",
+                begin_date: (pending.begin_date + " u " + pending.begin_time) || "Nije navedeno"
+            })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert("Rezervacija uspješna!");
+                sessionStorage.removeItem("pending_reservation");
+                window.location.href = "/my_reservations";
+            }
+        });
+    };
+}
+
+document.addEventListener("DOMContentLoaded", loadReservationCheckout);
+</script>
+{% endblock %}

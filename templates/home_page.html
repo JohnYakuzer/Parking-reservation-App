@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}parKING - Početna{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home_page.css') }}">
+
+<div class="home-wrapper">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Dobrodošli u <span class="brand-name">parKING</span></h1>
+            <p>Vaše kraljevstvo za siguran i brz parking u gradu.</p>
+            <div class="hero-buttons">
+                <a href="/locations" class="btn-primary">Rezerviši mjesto</a>
+                <a href="/register" class="btn-secondary">Postani član</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <div class="container">
+            <div class="info-grid">
+                <div class="info-text">
+                    <h2>O našem servisu</h2>
+                    <p>
+                        <strong>parKING</strong> nije samo običan parking servis. Mi smo lideri u pružanju pametnih rješenja 
+                        za parkiranje već preko 10 godina. Naša misija je da eliminišemo stres traženja slobodnog mjesta 
+                        kroz modernu digitalnu platformu.
+                    </p>
+                    <p>
+                        Sa preko 50 lokacija širom grada i najmodernijim video nadzorom, garantujemo sigurnost vašeg vozila 
+                        dok vi obavljate svoje svakodnevne obaveze.
+                    </p>
+                </div>
+                <div class="info-stats">
+                    <div class="stat-card">
+                        <h3>50+</h3>
+                        <p>Lokacija</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>10k+</h3>
+                        <p>Korisnika</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>24/7</h3>
+                        <p>Podrška</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-section">
+        <div class="container">
+            <h2 class="section-title">Zašto izabrati nas?</h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="icon">📍</div>
+                    <h3>Premium Lokacije</h3>
+                    <p>Sva naša parking mjesta se nalaze u užem centru grada i ključnim poslovnim zonama.</p>
+                </div>
+                <div class="service-item">
+                    <div class="icon">💳</div>
+                    <h3>Lako Plaćanje</h3>
+                    <p>Brzo i jednostavno plaćanje putem kartica ili PayPal-a uz potpunu sigurnost transakcija.</p>
+                </div>
+                <div class="service-item">
+                    <div class="icon">🛡️</div>
+                    <h3>Maksimalna Sigurnost</h3>
+                    <p>Svako parking mjesto je pokriveno HD kamerama i fizičkim obezbjeđenjem.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Register - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="reg-page-container">
+    <div class="reg-card">
+        <div class="reg-header">
+            <h1>Registracija</h1>
+            <p>Postanite član <span class="reg-brand-text">parKING</span> zajednice</p>
+        </div>
+
+        <form id="registerForm" class="reg-form">
+            <div class="reg-row">
+                <div class="reg-group">
+                    <label for="first_name">Ime</label>
+                    <input type="text" id="first_name" name="first_name" required placeholder="Unesite ime">
+                </div>
+                <div class="reg-group">
+                    <label for="last_name">Prezime</label>
+                    <input type="text" id="last_name" name="last_name" required placeholder="Unesite prezime">
+                </div>
+            </div>
+
+            <div class="reg-group">
+                <label for="username">Korisničko ime</label>
+                <input type="text" id="username" name="username" required placeholder="Izaberite username">
+            </div>
+
+            <div class="reg-group">
+                <label for="email">Email adresa</label>
+                <input type="email" id="email" name="email" required placeholder="primer@email.com">
+            </div>
+
+            <div class="reg-group">
+                <label for="password">Lozinka</label>
+                <input type="password" id="password" name="password" required placeholder="Minimum 6 karaktera">
+            </div>
+
+            <div class="reg-group">
+                <label for="phone">Telefon</label>
+                <input type="tel" id="phone" name="phone" required placeholder="+38267123456">
+            </div>
+
+            <button type="submit" class="reg-btn-submit">
+                <span>Kreiraj nalog</span>
+            </button>
+        </form>
+        
+        <div class="reg-footer-link">
+            <p>Već imate nalog? <a href="/login">Prijavite se ovde</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const first_name = document.getElementById("first_name").value.trim();
+    const last_name = document.getElementById("last_name").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!email.includes("@") || !email.includes(".")) {
+        alert("Email mora sadržati '@' i '.' !");
+        return;
+    }
+    if (!phone.startsWith("+")) {
+        alert("Broj telefona mora početi sa '+' !");
+        return;
+    }
+
+    const data = { first_name, last_name, username, email, password, phone };
+
+    try {
+        const res = await fetch("/api/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            alert(result.message);
+            window.location.href = "/login";
+        } else {
+            alert(result.error || "Došlo je do greške");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Došlo je do greške prilikom slanja zahteva.");
+    }
+});
+</script>
+{% endblock %}

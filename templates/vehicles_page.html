@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Moja Vozila - parKING{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vehicles_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="vh-wrapper">
+    <section class="vh-hero">
+        <div class="vh-container">
+            <h1>Moja Vozila</h1>
+            <p>Upravljajte svojom garažom u <span class="vh-brand">parKING</span> mreži.</p>
+        </div>
+    </section>
+
+    <section class="vh-section">
+        <div class="vh-container">
+            {% if not vehicles %}
+                <div class="vh-empty-state">
+                    <div class="vh-empty-icon">🚗</div>
+                    <p>Nemate registrovanih vozila.</p>
+                    <a href="/add_vehicle" class="vh-btn-add-main">Dodaj prvo vozilo</a>
+                </div>
+            {% else %}
+                <div id="vehiclesContainer" class="vh-list">
+                    {% for v in vehicles %}
+                        {# Mapiranje tipa vozila na sliku #}
+                        {% set v_type = v.vehicle_type | lower %}
+                        {% if 'auto' in v_type %} {% set img_name = 'car.png' %}
+                        {% elif 'kamion' in v_type %} {% set img_name = 'truck.png' %}
+                        {% elif 'kombi' in v_type %} {% set img_name = 'van.png' %}
+                        {% elif 'motor' in v_type %} {% set img_name = 'motorcycle.png' %}
+                        {% elif 'autobus' in v_type %} {% set img_name = 'bus.png' %}
+                        {% else %} {% set img_name = 'car.png' %}
+                        {% endif %}
+
+                        <div class="vh-card">
+                            <div class="vh-card-content">
+                                <div class="vh-image-box">
+                                    <img src="{{ url_for('static', filename='data/' + img_name) }}" alt="{{ v.vehicle_type }}" class="vh-type-img">
+                                </div>
+                                
+                                <div class="vh-card-info">
+                                    <div class="vh-header">
+                                        <h3>{{ v.vehicle_production_mark }}</h3>
+                                        <span class="vh-type-badge">{{ v.vehicle_type }}</span>
+                                    </div>
+                                    <div class="vh-meta-grid">
+                                        <div class="vh-meta-item">
+                                            <span class="vh-label">Tablice:</span>
+                                            <span class="vh-val vh-plate">{{ v.vehicle_licence_plate }}</span>
+                                        </div>
+                                        <div class="vh-meta-item">
+                                            <span class="vh-label">Boja:</span>
+                                            <span class="vh-val">{{ v.vehicle_color }}</span>
+                                        </div>
+                                        <div class="vh-meta-item">
+                                            <span class="vh-label">Godište:</span>
+                                            <span class="vh-val">{{ v.vehicle_year_of_production }}</span>
+                                        </div>
+                                        <div class="vh-meta-item">
+                                            <span class="vh-label">Karoserija:</span>
+                                            <span class="vh-val">{{ v.vehicle_body_type }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vh-card-actions">
+                                <button class="deleteBtn vh-btn-delete" data-id="{{ v.car_id }}">
+                                    Ukloni
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="vh-footer-actions">
+                <a href="/add_vehicle" class="vh-btn-add-new">Dodaj Novo Vozilo</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const carId = btn.getAttribute("data-id");
+            if (!confirm("Da li ste sigurni da želite obrisati ovo vozilo?")) return;
+
+            try {
+                const res = await fetch(`/api/vehicles/delete/${carId}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Greška prilikom brisanja vozila.");
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

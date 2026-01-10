@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+backup/
+routes/__pycache__/
+static/data/uploads/jews_sex.png
+static/data/uploads/Kevin.jpg
+routes/backUPvehicles_routes.py
+routes/backup_admin_routes.py
+templates/backup_admin_user_profile.html
+parking.db
+test_backup_park.db
+models_backup.py

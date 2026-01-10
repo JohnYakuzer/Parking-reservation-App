@@ -1,0 +1,43 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+
+<nav class="main-navbar">
+    <div class="container navbar-container">
+        <div class="nav-logo">
+            <a href="/"><span class="brand-name">parKING</span></a>
+        </div>
+        
+        <ul class="nav-links">
+            <li><a href="/">Početna</a></li>
+            <li><a href="/locations">Lokacije</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/contact">Kontakt</a></li>
+            <li><a href="/privacy_policy">Politika privatnosti</a></li>
+
+            {% if session.get("user_id") %}
+                {% if session.get("is_admin") == 1 %}
+                    <li class="nav-dropdown">
+                        <a href="#" class="dropdown-trigger admin-text">Admin Panel ▼</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/admin_users">Korisnici</a></li>
+                            <li><a href="/admin_vehicles">Vozila</a></li>
+                            <li><a href="/admin_locations">Lokacije</a></li>
+                            <li><a href="/admin_reservations">Rezervacije</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/user_profile">Profil</a></li>
+                    <li><a href="/my_reservations">Rezervacije</a></li>
+                    <li><a href="/payments">Plaćanja</a></li>
+                    <li><a href="/vehicles">Vozila</a></li>  
+                {% endif %}
+                
+                <li class="logout-item">
+                    <a href="/logout" class="btn-logout">Odjavi se ({{ session.get('username') }})</a>
+                </li>
+            {% else %}
+                <li><a href="/login">Login</a></li>
+                <li class="register-item"><a href="/register" class="btn-register">Registracija</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

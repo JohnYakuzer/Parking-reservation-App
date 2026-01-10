@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Upravljanje Lokacijama{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_locations.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="al-wrapper">
+    <section class="al-hero">
+        <div class="al-container">
+            <h1>Admin Panel: Lokacije</h1>
+            <p>Pregled i upravljanje parking zonama u <span class="al-brand">parKING</span> sistemu.</p>
+        </div>
+    </section>
+
+    <section class="al-section">
+        <div class="al-container">
+            <div class="al-top-bar">
+                <div class="al-title-box">
+                    <h2>Sve lokacije</h2>
+                    <p>Ukupna kontrola nad dostupnim parking mjestima</p>
+                </div>
+                <button onclick="window.location.href='/admin/add_location'" class="al-btn-add">
+                    + Dodaj Novu Lokaciju
+                </button>
+            </div>
+
+            <div class="al-card-container">
+                <table class="al-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Koordinate/Naziv</th>
+                            <th>Slobodno</th>
+                            <th>Zauzeto</th>
+                            <th style="text-align: center;">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody id="locationsTableBody">
+                        <tr>
+                            <td colspan="5" class="al-loading">Učitavanje podataka...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchLocations();
+});
+
+function fetchLocations() {
+    fetch("/api/admin/locations")
+        .then(res => res.json())
+        .then(data => {
+            const tableBody = document.getElementById("locationsTableBody");
+            tableBody.innerHTML = "";
+            
+            if (data.locations && data.locations.length > 0) {
+                data.locations.forEach(loc => {
+                    const tr = document.createElement("tr");
+                    tr.className = "al-row-fade";
+
+                    tr.innerHTML = `
+                        <td><span class="al-id-badge">#${loc.location_id}</span></td>
+                        <td><strong class="al-coord-text">${loc.location_coordinates}</strong></td>
+                        <td><span class="al-stat-free">${loc.free_locations}</span></td>
+                        <td><span class="al-stat-used">${loc.used_location}</span></td>
+                        <td style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+                            <button onclick="window.location.href='/admin/location-details/${loc.location_id}'" class="al-btn-details">
+                                Detalji
+                            </button>
+                            <button onclick="deleteLocation(${loc.location_id}, '${loc.location_coordinates}')" class="al-btn-delete">
+                                Ukloni
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='5' class='al-empty'>Nema pronađenih lokacija.</td></tr>";
+            }
+        })
+        .catch(err => {
+            console.error("Greška:", err);
+            document.getElementById("locationsTableBody").innerHTML = "<tr><td colspan='5' class='al-error'>Greška pri učitavanju podataka.</td></tr>";
+        });
+}
+
+function deleteLocation(id, name) {
+    if (confirm(`PAŽNJA! Brisanje lokacije "${name}" će automatski obrisati SVE rezervacije vezane za nju. Da li želite nastaviti?`)) {
+        fetch(`/api/admin/locations/${id}`, {
+            method: "DELETE"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("Greška: " + data.error);
+            } else {
+                alert("Lokacija i povezane rezervacije su obrisane.");
+                fetchLocations();
+            }
+        })
+        .catch(err => {
+            console.error("Greška pri brisanju:", err);
+            alert("Sistemska greška pri brisanju lokacije.");
+        });
+    }
+}
+</script>
+{% endblock %}

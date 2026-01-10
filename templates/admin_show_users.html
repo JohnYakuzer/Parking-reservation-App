@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Upravljanje Korisnicima{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_users.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="al-wrapper">
+    <section class="al-hero">
+        <div class="al-container">
+            <h1>Admin Panel: Korisnici</h1>
+            <p>Pregled svih registrovanih korisnika i upravljanje profilima u <span class="al-brand">parKING</span> sistemu.</p>
+        </div>
+    </section>
+
+    <section class="al-section">
+        <div class="al-container">
+            <div class="al-top-bar">
+                <div class="al-title-box">
+                    <h2>Svi Korisnici</h2>
+                    <p>Kontrola pristupa i administratorska ovlaštenja</p>
+                </div>
+                <button onclick="window.location.href='/admin/add-admin'" class="al-btn-add">
+                    + Dodaj Novog Admina
+                </button>
+            </div>
+
+            <div class="al-card-container">
+                <table class="al-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Ime i Prezime</th>
+                            <th>Email/Telefon</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="6" class="al-loading">Učitavanje podataka...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+const currentUserId = {{ session.get('user_id', 0) }};
+
+document.addEventListener("DOMContentLoaded", function() {
+    fetchUsers();
+});
+
+function fetchUsers() {
+    fetch("/api/admin/users")
+        .then(res => res.json())
+        .then(data => {
+            const tableBody = document.getElementById("usersTableBody");
+            tableBody.innerHTML = "";
+            
+            if (data.users && data.users.length > 0) {
+                data.users.forEach(user => {
+                    const tr = document.createElement("tr");
+                    tr.className = "al-row-fade";
+                    
+                    const isSelf = user.user_id === currentUserId;
+                    
+                    const deleteBtn = isSelf 
+                        ? `<button disabled class="al-btn-self">Trenutni korisnik</button>`
+                        : `<button onclick="deleteUser(${user.user_id}, '${user.username}')" class="al-btn-delete">Obriši</button>`;
+
+                    tr.innerHTML = `
+                        <td><span class="al-id-badge">#${user.user_id}</span></td>
+                        <td><strong class="al-main-text">${user.username}</strong></td>
+                        <td><span class="al-coord-text">${user.first_name} ${user.last_name}</span></td>
+                        <td>
+                            <div class="al-user-info">
+                                <span class="al-main-text" style="font-size: 0.9rem;">${user.email}</span>
+                                <span class="al-sub-text">${user.phone}</span>
+                            </div>
+                        </td>
+                        <td>${user.is_admin === 1 ? '<span class="al-badge-admin">Admin</span>' : '<span class="al-badge-user">Korisnik</span>'}</td>
+                        <td style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+                            <button onclick="window.location.href='/admin_user_info/${user.user_id}'" class="al-btn-details">Detalji</button>
+                            ${deleteBtn}
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='6' class='al-empty'>Nema pronađenih korisnika.</td></tr>";
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching users:", err);
+            document.getElementById("usersTableBody").innerHTML = "<tr><td colspan='6' class='al-error'>Greška pri učitavanju podataka.</td></tr>";
+        });
+}
+
+function deleteUser(userId, username) {
+    if (confirm(`DA LI STE SIGURNI? Brisanjem korisnika "${username}" obrisat ćete i SVA njegova vozila, rezervacije i payment metode! Ova radnja je nepovratna.`)) {
+        fetch(`/api/admin/users/${userId}`, {
+            method: "DELETE"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("Greška: " + data.error);
+            } else {
+                alert(data.message);
+                fetchUsers(); 
+            }
+        })
+        .catch(err => alert("Greška pri brisanju korisnika."));
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Moje Rezervacije - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_reservations.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="res-wrapper">
+    <section class="res-hero">
+        <div class="res-container">
+            <h1>Moje Rezervacije</h1>
+            <p>Pregledajte i upravljajte vašim aktivnim i prošlim parkiranjima u <span class="res-brand">parKING</span> mreži.</p>
+        </div>
+    </section>
+
+    <section class="res-section">
+        <div class="res-container">
+            
+            <div id="noReservations" class="res-empty-state" style="display:none;">
+                <div class="res-empty-icon"></div>
+                <p>Trenutno nemate aktivnih rezervacija.</p>
+                <a href="/locations" class="res-btn-primary">Rezerviši parking mjesto sada</a>
+            </div>
+
+            <div id="reservationsContainer" class="res-list">
+                </div>
+
+            <div class="res-footer-actions">
+                <a href="/" class="res-btn-outline">← Nazad na početnu</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const container = document.getElementById("reservationsContainer");
+    const noResDiv = document.getElementById("noReservations");
+
+    try {
+        const response = await fetch('/api/my_reservations');
+        const data = await response.json();
+
+        if (!data.reservations || data.reservations.length === 0) {
+            noResDiv.style.display = "block";
+            return;
+        }
+
+        data.reservations.forEach(r => {
+            const card = document.createElement("div");
+            card.className = "res-card";
+            
+            card.innerHTML = `
+                <div class="res-card-info">
+                    <div class="res-loc-header">
+                        <span class="res-status-dot"></span>
+                        <h3>${r.location_name}</h3>
+                    </div>
+                    <div class="res-meta-grid">
+                        <div class="res-meta-item">
+                            <span class="res-label">🚗 Vozilo:</span>
+                            <span class="res-val">${r.vehicle_mark} (${r.vehicle_plate})</span>
+                        </div>
+                        <div class="res-meta-item">
+                            <span class="res-label">📍 Pozicija:</span>
+                            <span class="res-val">Mjesto br. ${r.reserved_location}</span>
+                        </div>
+                        <div class="res-meta-item">
+                            <span class="res-label">🆔 Rezervacija:</span>
+                            <span class="res-val">#${r.reservation_id}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="res-card-actions">
+                    <a href="/reservations_details/${r.reservation_id}" class="res-btn-details">
+                        Detalji
+                    </a>
+                    <button onclick="cancelReservation(${r.reservation_id})" class="res-btn-cancel">
+                        Otkaži
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+async function cancelReservation(resId) {
+    if (!confirm("Da li ste sigurni da želite otkazati ovu rezervaciju?")) return;
+    try {
+        const res = await fetch(`/api/reservations/delete/${resId}`, { method: "DELETE" });
+        if (res.ok) {
+            alert("Rezervacija uspješno otkazana.");
+            location.reload();
+        }
+    } catch (err) {
+        alert("Greška pri otkazivanju.");
+    }
+}
+</script>
+{% endblock %}

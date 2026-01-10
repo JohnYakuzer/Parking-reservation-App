@@ -1,0 +1,184 @@
+.rd-wrapper {
+    background-color: var(--light-bg);
+    min-height: 100vh;
+    padding-bottom: 100px;
+}
+
+.rd-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+
+.rd-hero {
+    background: linear-gradient(rgba(26, 58, 95, 0.92), rgba(26, 58, 95, 0.92)), 
+                url('https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 100px 0;
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 60px;
+}
+
+.rd-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.rd-brand {
+    color: var(--secondary-color);
+}
+
+
+.rd-card-main {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    animation: rdFadeIn 0.6s ease;
+    border: 1px solid #edf2f7;
+}
+
+.rd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.rd-block-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+.rd-block-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.rd-info-body .rd-item {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: #4a5568;
+}
+
+.rd-highlight {
+    color: #28a745;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.rd-plate-box {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+
+
+.rd-payment-summary {
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 30px;
+    border: 1px solid #e2e8f0;
+}
+
+.rd-payment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.rd-pay-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.rd-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.rd-val {
+    font-size: 1.1rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+
+.rd-actions {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.rd-btn-back {
+    background: none;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rd-btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+
+.rd-loading {
+    text-align: center;
+    padding: 50px;
+}
+
+.rd-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--secondary-color);
+    border-radius: 50%;
+    animation: rdSpin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+.rd-error {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+@keyframes rdFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rdSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+@media (max-width: 768px) {
+    .rd-grid, .rd-payment-grid {
+        grid-template-columns: 1fr;
+    }
+    .rd-hero h1 { font-size: 2.2rem; }
+    .rd-card-main { padding: 25px; }
+}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Detalji Rezervacije{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_reservation_details.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="det-wrapper">
+    <section class="det-hero">
+        <div class="det-container">
+            <div class="det-hero-content">
+                <h1>Rezervacija <span class="det-brand">#<span id="res_id_title">...</span></span></h1>
+                <p class="det-hero-subtitle">Detaljan pregled transakcije, korisnika i dodijeljenog parking mjesta</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="det-section">
+        <div class="det-container">
+            <div class="det-card-main">
+                
+                <div class="det-info-grid">
+                    <div class="det-info-text prof-info-card">
+                        <div class="det-info-header">
+                            <strong>Korisnik i Vozilo</strong>
+                        </div>
+                        
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Ime i prezime</span>
+                            <p class="det-coords-text" id="u_name">--</p>
+                        </div>
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Email / Telefon</span>
+                            <p class="al-sub-text"><span id="u_email">--</span> <br> <span id="u_phone">--</span></p>
+                        </div>
+                        <div class="det-divider-h"></div>
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Vozilo</span>
+                            <p class="det-coords-text" id="v_mark">--</p>
+                            <span class="al-plate-badge" id="v_plate" style="display: inline-block; margin-top: 5px;">--</span>
+                        </div>
+                    </div>
+
+                    <div class="det-preview-box prof-info-card status-card">
+                        <div class="det-info-header">
+                            <strong>Parking i Naplata</strong>
+                        </div>
+
+                        <div class="prof-detail-item">
+                            <span class="det-stat-label">Parking Lokacija</span>
+                            <p class="det-coords-text" id="l_name">--</p>
+                            <p class="al-sub-text" id="l_coords">--</p>
+                        </div>
+
+                        <div class="det-stats-pill">
+                            <div class="det-stat-item">
+                                <span class="det-stat-label">Mjesto</span>
+                                <span id="r_spot" class="status-badge">--</span>
+                            </div>
+                            <div class="det-divider"></div>
+                            <div class="det-stat-item">
+                                <span class="det-stat-label">Trajanje</span>
+                                <span class="status-badge"><span id="r_period">--</span> min</span>
+                            </div>
+                        </div>
+
+                        <div class="prof-detail-item" style="text-align: center; margin-top: 20px;">
+                            <span class="det-stat-label">Metoda plaćanja</span>
+                            <p class="det-coords-text" style="color: var(--success);"><span id="p_type">--</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="det-actions">
+                    <button onclick="window.location.href='/admin_reservations'" class="det-btn-primary">Nazad na listu</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+const resId = window.location.pathname.split("/").pop();
+
+fetch(`/api/admin/reservations/${resId}`)
+.then(res => res.json())
+.then(data => {
+    if(data.error) return alert(data.error);
+    const r = data.reservation;
+    
+    document.getElementById("res_id_title").innerText = r.id;
+    document.getElementById("u_name").innerText = r.user.full_name;
+    document.getElementById("u_email").innerText = r.user.email;
+    document.getElementById("u_phone").innerText = r.user.phone;
+    
+    document.getElementById("v_mark").innerText = r.vehicle.mark;
+    document.getElementById("v_plate").innerText = r.vehicle.plate;
+    
+    document.getElementById("l_name").innerText = r.location.name;
+    document.getElementById("l_coords").innerText = r.location.coords;
+    document.getElementById("r_spot").innerText = "#" + r.spot;
+    
+    document.getElementById("p_type").innerText = r.payment.type;
+    document.getElementById("r_period").innerText = r.time_period;
+})
+.catch(err => console.error("Greška:", err));
+</script>
+{% endblock %}

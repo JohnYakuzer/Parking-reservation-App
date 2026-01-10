@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Dodaj Vozilo - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_vehicle.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="av-page-container">
+    <div class="av-card">
+        <div class="av-header">
+            <h1>Dodaj Vozilo</h1>
+            <p>Proširite svoju garažu u <span class="av-brand-text">parKING</span> mreži</p>
+        </div>
+
+        <form id="vehicleForm" class="av-form">
+            <div class="av-row">
+                <div class="av-group">
+                    <label for="vehicle_type">Tip Vozila</label>
+                    <select id="vehicle_type" required>
+                        <option value="">-- Izaberite tip --</option>
+                    </select>
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+                <div class="av-group">
+                    <label for="vehicle_body_type">Tip Karoserije</label>
+                    <select id="vehicle_body_type" required>
+                        <option value="">-- Izaberite karoseriju --</option>
+                    </select>
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+            </div>
+
+            <div class="av-group">
+                <label for="vehicle_production_mark">Marka i Model</label>
+                <input type="text" id="vehicle_production_mark" placeholder="Npr. Volkswagen Golf 7" required>
+                <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+            </div>
+
+            <div class="av-group">
+                <label for="vehicle_licence_plate">Registarska Oznaka</label>
+                <input type="text" id="vehicle_licence_plate" placeholder="PG-AS123" required>
+                <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+            </div>
+
+            <div class="av-row">
+                <div class="av-group">
+                    <label for="vehicle_color">Boja Vozila</label>
+                    <input type="text" id="vehicle_color" placeholder="Npr. Crna metalik" required>
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+                <div class="av-group">
+                    <label for="vehicle_year_of_production">Godište</label>
+                    <input type="number" id="vehicle_year_of_production" placeholder="2020" required>
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+            </div>
+
+            <button type="submit" class="av-btn-submit">
+                <span>Dodaj Vozilo</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let vehicleOptions = {};
+
+fetch("/static/data/vehicle_options.json")
+    .then(res => res.json())
+    .then(data => {
+        vehicleOptions = data.vehicles;
+        const vehicleSelect = document.getElementById("vehicle_type");
+        vehicleOptions.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v.type;
+            opt.textContent = v.type;
+            vehicleSelect.appendChild(opt);
+        });
+    });
+
+document.getElementById("vehicle_type").addEventListener("change", () => {
+    const selectedType = document.getElementById("vehicle_type").value;
+    const bodySelect = document.getElementById("vehicle_body_type");
+    bodySelect.innerHTML = '<option value="">-- Izaberite karoseriju --</option>';
+
+    if (!selectedType) return;
+
+    const vehicle = vehicleOptions.find(v => v.type === selectedType);
+    if (vehicle) {
+        vehicle.body_types.forEach(bt => {
+            const opt = document.createElement("option");
+            opt.value = bt;
+            opt.textContent = bt;
+            bodySelect.appendChild(opt);
+        });
+    }
+});
+
+document.getElementById("vehicleForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = {
+        vehicle_type: document.getElementById("vehicle_type").value.trim(),
+        vehicle_body_type: document.getElementById("vehicle_body_type").value.trim(),
+        vehicle_production_mark: document.getElementById("vehicle_production_mark").value.trim(),
+        vehicle_licence_plate: document.getElementById("vehicle_licence_plate").value.trim(),
+        vehicle_color: document.getElementById("vehicle_color").value.trim(),
+        vehicle_year_of_production: document.getElementById("vehicle_year_of_production").value.trim()
+    };
+
+    let hasError = false;
+    for (let key in payload) {
+        const input = document.getElementById(key);
+        const error = input.nextElementSibling;
+        if (!payload[key]) {
+            error.textContent = "Polje je obavezno.";
+            error.style.display = "block";
+            hasError = true;
+        } else {
+            error.textContent = "";
+            error.style.display = "none";
+        }
+    }
+
+    if (hasError) return;
+
+    try {
+        const res = await fetch("/api/vehicles/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message);
+            window.location.href = "/vehicles";
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Greška prilikom dodavanja vozila.");
+    }
+});
+</script>
+{% endblock %}

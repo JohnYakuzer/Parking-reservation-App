@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Upravljanje Vozilima{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_vehicles.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="al-wrapper">
+    <section class="al-hero">
+        <div class="al-container">
+            <h1>Admin Panel: Sva Vozila</h1>
+            <p>Pregled svih vozila u sistemu i njihovih trenutnih lokacija u <span class="al-brand">parKING</span> mreži.</p>
+        </div>
+    </section>
+
+    <section class="al-section">
+        <div class="al-container">
+            <div class="al-top-bar">
+                <div class="al-title-box">
+                    <h2>Registrovana Vozila</h2>
+                    <p>Monitoring i upravljanje voznim parkom korisnika</p>
+                </div>
+            </div>
+
+            <div class="al-card-container">
+                <table class="al-table">
+                    <thead>
+                        <tr>
+                            <th>Tip</th>
+                            <th>Marka</th>
+                            <th>Tablice</th>
+                            <th>Vlasnik</th>
+                            <th>Parkirano na</th>
+                            <th style="text-align: center;">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesTableBody">
+                        <tr>
+                            <td colspan="6" class="al-loading">Učitavanje podataka...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchAdminVehicles();
+});
+
+function fetchAdminVehicles() {
+    fetch("/api/admin/vehicles")
+        .then(res => res.json())
+        .then(data => {
+            const tableBody = document.getElementById("vehiclesTableBody");
+            tableBody.innerHTML = "";
+            
+            if (data.vehicles && data.vehicles.length > 0) {
+                data.vehicles.forEach(v => {
+                    const tr = document.createElement("tr");
+                    tr.className = "al-row-fade";
+                    
+                    tr.innerHTML = `
+                        <td><span class="al-id-badge">${v.vehicle_type}</span></td>
+                        <td><strong class="al-main-text">${v.vehicle_production_mark}</strong></td>
+                        <td><span class="al-plate-badge">${v.vehicle_licence_plate}</span></td>
+                        <td><strong class="al-coord-text">${v.owner_name}</strong></td>
+                        <td><span class="al-stat-free">${v.parked_location}</span></td>
+                        <td style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+                            <button onclick="window.location.href='/admin_vehicle/${v.car_id}'" class="al-btn-details">Detalji</button>
+                            <button onclick="removeVehicle(${v.car_id})" class="al-btn-delete">Ukloni</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='6' class='al-empty'>Nema pronađenih vozila u sistemu.</td></tr>";
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching vehicles:", err);
+            document.getElementById("vehiclesTableBody").innerHTML = "<tr><td colspan='6' class='al-error'>Greška pri učitavanju podataka.</td></tr>";
+        });
+}
+
+function removeVehicle(carId) {
+    if (confirm("Da li ste sigurni da želite ukloniti ovo vozilo? Ovo će osloboditi parking mjesto ako je vozilo parkirano.")) {
+        fetch(`/api/admin/vehicles/${carId}`, {
+            method: "DELETE"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("Greška: " + data.error);
+            } else {
+                alert("Vozilo uspješno uklonjeno i mjesto je oslobođeno!");
+                fetchAdminVehicles(); 
+            }
+        })
+        .catch(err => alert("Greška pri brisanju."));
+    }
+}
+</script>
+{% endblock %}

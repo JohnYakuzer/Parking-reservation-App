@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dodaj Admina - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_add_admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="reg-page-container">
+    <div class="reg-card">
+        <div class="reg-header">
+            <h1>Kreiraj Admina</h1>
+            <p>Dodajte novog administratora u <span class="reg-brand-text">parKING</span> sistem</p>
+        </div>
+
+        <form id="addAdminForm" class="reg-form">
+            <div class="reg-row">
+                <div class="reg-group">
+                    <label for="first_name">Ime</label>
+                    <input type="text" id="first_name" required placeholder="Unesite ime">
+                </div>
+                <div class="reg-group">
+                    <label for="last_name">Prezime</label>
+                    <input type="text" id="last_name" required placeholder="Unesite prezime">
+                </div>
+            </div>
+
+            <div class="reg-group">
+                <label for="username">Korisničko ime</label>
+                <input type="text" id="username" required placeholder="Izaberite admin username">
+            </div>
+
+            <div class="reg-group">
+                <label for="email">Email adresa</label>
+                <input type="email" id="email" required placeholder="admin@parking.com">
+            </div>
+
+            <div class="reg-group">
+                <label for="phone">Telefon</label>
+                <input type="tel" id="phone" required placeholder="+38267123456">
+            </div>
+
+            <div class="reg-group">
+                <label for="password">Lozinka</label>
+                <input type="password" id="password" required placeholder="Sigurna lozinka">
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <button type="submit" class="reg-btn-submit" style="flex: 2; margin-top: 0;">
+                    <span>Potvrdi i Kreiraj</span>
+                </button>
+                <button type="button" onclick="window.location.href='/admin_users'" class="reg-btn-submit" style="flex: 1; margin-top: 0; background-color: #64748b;">
+                    <span>Nazad</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById("addAdminForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const first_name = document.getElementById("first_name").value.trim();
+    const last_name = document.getElementById("last_name").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!first_name || !last_name || !username || !email || !phone || !password) {
+        alert("Sva polja su obavezna!");
+        return;
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+        alert("Email mora sadržati '@' i '.' !");
+        return;
+    }
+
+    if (!phone.startsWith("+")) {
+        alert("Broj telefona mora početi sa '+' !");
+        return;
+    }
+
+    const data = { first_name, last_name, username, email, phone, password };
+
+    fetch("/api/admin/add-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(async res => {
+        const result = await res.json();
+        if (res.ok) {
+            alert(result.message);
+            window.location.href = "/admin_users"; 
+        } else {
+            alert(result.error || "Došlo je do greške prilikom kreiranja admina.");
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Došlo je do greške prilikom slanja zahtjeva.");
+    });
+});
+</script>
+{% endblock %}

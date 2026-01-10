@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Moj Profil - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="prof-wrapper">
+    <section class="prof-hero">
+        <div class="prof-container">
+            <h1 id="userNameTitle">Učitavanje profila...</h1>
+            <p>Upravljajte svojim podacima, vozilima i aktivnim rezervacijama u <span class="prof-brand">parKING</span> sistemu.</p>
+        </div>
+    </section>
+
+    <div class="prof-container">
+        <div class="prof-stats-grid">
+            <div class="prof-info-card prof-card-primary">
+                <div class="prof-card-header">
+                    <h3>Lični podaci</h3>
+                </div>
+                <div class="prof-card-body">
+                    <p><strong>Username:</strong> <span id="u_username"></span></p>
+                    <p><strong>Email:</strong> <span id="u_email"></span></p>
+                    <p><strong>Telefon:</strong> <span id="u_phone"></span></p>
+                </div>
+            </div>
+
+            <div class="prof-info-card prof-card-status">
+                <div class="prof-card-header">
+                    <h3>Status Naloga</h3>
+                </div>
+                <div class="prof-card-body">
+                    <p><strong>Admin:</strong> <span id="u_admin_status"></span></p>
+                    <p><strong>Kazne:</strong> <span id="u_ticket_status" class="prof-ticket-val"></span></p>
+                    <p><strong>ID Korisnika:</strong> <span id="u_id"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="prof-section-card">
+            <div class="prof-card-header">
+                <h3>Moja Vozila</h3>
+            </div>
+            <div class="prof-table-responsive">
+                <table class="prof-table">
+                    <thead>
+                        <tr>
+                            <th>Vozilo</th>
+                            <th>Tablice</th>
+                            <th>Registrovan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="prof-section-card">
+            <div class="prof-card-header">
+                <h3>Moje Rezervacije</h3>
+            </div>
+            <div class="prof-table-responsive">
+                <table class="prof-table">
+                    <thead>
+                        <tr>
+                            <th>Lokacija</th>
+                            <th>Trajanje</th>
+                            <th>Mjesto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="prof-payment-section">
+            <div class="prof-card-header">
+                <h3>Načini Plaćanja</h3>
+            </div>
+            <div id="paymentCardsContainer" class="prof-payment-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('/api/users/profile-details')
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) { window.location.href = "/login"; return; }
+
+            document.getElementById("userNameTitle").innerText = "Moj Profil: " + data.user_info.name;
+            document.getElementById("u_id").innerText = data.user_info.id;
+            document.getElementById("u_username").innerText = data.user_info.username;
+            document.getElementById("u_email").innerText = data.user_info.email;
+            document.getElementById("u_phone").innerText = data.user_info.phone;
+            document.getElementById("u_admin_status").innerText = data.user_info.is_admin;
+            
+            const ticketEl = document.getElementById("u_ticket_status");
+            ticketEl.innerText = data.user_info.has_ticket;
+            if(data.user_info.has_ticket !== "Ne") {
+                ticketEl.style.color = "#dc3545";
+                ticketEl.style.fontWeight = "bold";
+            }
+
+            const vTable = document.getElementById("vehicleTable");
+            data.vehicles.forEach(v => {
+                vTable.innerHTML += `<tr><td>${v.mark}</td><td><span class="prof-plate-ui">${v.plate}</span></td><td>${v.registered}</td></tr>`;
+            });
+
+            const rTable = document.getElementById("resTable");
+            data.reservations.forEach(r => {
+                rTable.innerHTML += `<tr><td><strong>${r.location}</strong></td><td>${r.period} min</td><td>#${r.spot}</td></tr>`;
+            });
+
+            const pContainer = document.getElementById("paymentCardsContainer");
+            data.payments.forEach(p => {
+                pContainer.innerHTML += `
+                    <div class="prof-pay-card">
+                        <div class="prof-pay-icon"></div>
+                        <div>
+                            <strong>${p.method}</strong><br>
+                            <small>${p.method === 'PayPal' ? p.paypal : '**** **** **** ' + p.last_4}</small>
+                        </div>
+                    </div>`;
+            });
+        });
+});
+</script>
+{% endblock %}

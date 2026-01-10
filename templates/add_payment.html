@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Dodaj Plaćanje - parKING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_payment.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="ap-page-container">
+    <div class="ap-card">
+        <div class="ap-header">
+            <h1>Dodaj Plaćanje</h1>
+            <p>Upravljajte svojim opcijama u <span class="ap-brand-text">parKING</span> novčaniku</p>
+        </div>
+
+        <form id="paymentForm" class="ap-form">
+            <div class="ap-radio-group">
+                <label class="ap-radio-label">
+                    <input type="radio" name="payment_method" value="C" checked>
+                    <span>PayPal</span>
+                </label>
+                <label class="ap-radio-label">
+                    <input type="radio" name="payment_method" value="A">
+                    <span>Visa</span>
+                </label>
+                <label class="ap-radio-label">
+                    <input type="radio" name="payment_method" value="B">
+                    <span>MasterCard</span>
+                </label>
+            </div>
+
+            <div id="paypalFields">
+                <div class="ap-group">
+                    <label for="paypal_email">Email adresa</label>
+                    <input type="email" id="paypal_email" placeholder="unesite@email.com">
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+                <div class="ap-row">
+                    <div class="ap-group">
+                        <label for="paypal_password">Lozinka</label>
+                        <input type="password" id="paypal_password" placeholder="Lozinka">
+                        <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                    </div>
+                    <div class="ap-group">
+                        <label for="paypal_retype">Ponovite lozinku</label>
+                        <input type="password" id="paypal_retype" placeholder="Lozinka">
+                        <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cardFields" style="display:none;">
+                <div class="ap-group">
+                    <label for="card_holder_name">Vlasnik kartice</label>
+                    <input type="text" id="card_holder_name" placeholder="Ime i prezime na kartici">
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+                <div class="ap-group">
+                    <label for="card_number">Broj kartice</label>
+                    <input type="text" id="card_number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+                <div class="ap-row">
+                    <div class="ap-group">
+                        <label for="exp_date">Ističe (MM/YY)</label>
+                        <input type="text" id="exp_date" placeholder="MM/YY" maxlength="5">
+                        <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                    </div>
+                    <div class="ap-group">
+                        <label for="security_code">CVV</label>
+                        <input type="text" id="security_code" placeholder="XXX" maxlength="4">
+                        <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                    </div>
+                </div>
+                <div class="ap-group">
+                    <label for="billing_address_1">Adresa za naplatu</label>
+                    <input type="text" id="billing_address_1" placeholder="Ulica i broj">
+                    <small class="error" style="color:#e11d48; display:none; margin-top:5px; font-size:0.8rem; font-weight:600;"></small>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin-top: 5px; text-align: center;">
+                *Dodavanjem načina plaćanja prihvatate našu 
+                <a href="/privacy_policy" target="_blank" style="color:var(--secondary-color); font-weight:600; text-decoration:none;">Polisu privatnosti</a>.
+            </p>
+
+            <button type="submit" class="ap-btn-submit">
+                <span>Dodaj Opciju</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const paymentRadios = document.querySelectorAll("input[name='payment_method']");
+    const paypalFields = document.getElementById("paypalFields");
+    const cardFields = document.getElementById("cardFields");
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener("change", () => {
+            if (radio.value === "C") {
+                paypalFields.style.display = "block";
+                cardFields.style.display = "none";
+            } else {
+                paypalFields.style.display = "none";
+                cardFields.style.display = "block";
+            }
+            document.querySelectorAll(".error").forEach(e => { e.style.display="none"; });
+        });
+    });
+
+    document.getElementById("paymentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        let method = document.querySelector("input[name='payment_method']:checked").value;
+        let valid = true;
+
+        document.querySelectorAll(".error").forEach(e => { e.textContent=""; e.style.display="none"; });
+
+        let payload = { payment_method: method };
+
+        if (method === "C") {
+            let email = document.getElementById("paypal_email").value.trim();
+            let pwd = document.getElementById("paypal_password").value.trim();
+            let retype = document.getElementById("paypal_retype").value.trim();
+
+            if (!email || !pwd || !retype) {
+                alert("Molimo popunite sva PayPal polja.");
+                return;
+            }
+            if (!email.includes("@") || !email.includes(".")) {
+                const err = document.getElementById("paypal_email").nextElementSibling;
+                err.textContent = "Neispravan email format.";
+                err.style.display = "block";
+                valid = false;
+            }
+            if (pwd !== retype) {
+                const err = document.getElementById("paypal_retype").nextElementSibling;
+                err.textContent = "Lozinke se ne poklapaju.";
+                err.style.display = "block";
+                valid = false;
+            }
+            payload.paypall_email = email;
+            payload.paypall_password = pwd;
+
+        } else {
+            let name = document.getElementById("card_holder_name").value.trim();
+            let number = document.getElementById("card_number").value.trim();
+            let exp = document.getElementById("exp_date").value.trim();
+            let cvv = document.getElementById("security_code").value.trim();
+            let addr = document.getElementById("billing_address_1").value.trim();
+
+            if (!name || !number || !exp || !cvv || !addr) {
+                alert("Molimo popunite sva polja za karticu.");
+                return;
+            }
+            payload.card_holder_name = name;
+            payload.card_number = number;
+            payload.exp_date = exp;
+            payload.security_code = cvv;
+            payload.billing_address_1 = addr;
+        }
+
+        if (!valid) return;
+
+        try {
+            const res = await fetch("/api/payments/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert(data.message);
+                window.location.href = "/payments";
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Greška prilikom slanja zahtjeva.");
+        }
+    });
+});
+</script>
+{% endblock %}
