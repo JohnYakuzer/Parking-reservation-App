@@ -45,10 +45,6 @@ def create_app():
     app.register_blueprint(payments_routes)
 
   
-    with app.app_context():
-        db.create_all()
-
-  
     @app.route("/")
     def home():
         return render_template("home_page.html")
@@ -185,5 +181,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
-
+    app.run(host="0.0.0.0", port=5000, debug=True)

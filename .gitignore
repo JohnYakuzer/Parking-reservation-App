@@ -10,3 +10,6 @@ templates/backup_admin_user_profile.html
 parking.db
 test_backup_park.db
 models_backup.py
+.dockerignore
+Dockerfile
+entrypoint.sh
