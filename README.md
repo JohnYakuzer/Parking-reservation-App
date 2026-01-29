@@ -49,17 +49,19 @@ python3 db_populate.py
 
 # Pokretanje aplikacije
 python3 app.py
+```
 
 ### 2. Docker Instalacija
 
 Ukoliko preferirate rad sa kontejnerima, aplikacija je dostupna na Docker Hub-u.
-Bash
 
+```bash
 # Preuzimanje slike
 docker pull rdj917/public-projects:parking-app_v1.0
 
 # Pokretanje kontejnera
 docker run -p 5000:5000 <id-image-a>
+```
 
 Podaci za Pristup (Admin)
 
