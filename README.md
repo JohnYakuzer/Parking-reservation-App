@@ -76,10 +76,6 @@ Baza je unaprijed popunjena admin nalogom za testiranje sistema:
 ### NOTE: DOCKER IMAGE PO DEFAULTU NE CUVA BAZU PODATAKA, DA BI PROMJENE I SAM DB OSTAO PERSISTANT, MORATE MOUNTATI VOLUME!!!
 Struktura Baze Podataka
 
-Sistem se automatski popunjava podacima koji obuhvataju:
+### Sistem je automatski popunjen sa korisnicima, njihovim vozilima, metodama placanja, par parking lokacija i rezervacija.
 
-    Korisnici: 30+ generisanih korisnika sa različitim ulogama.
-
-    Vozila: Različite kategorije (Golf 7, BMW X5, MAN kamioni, Vespa motori itd.) sa pripadajućim registarskim oznakama.
-
-    Lokacije: Ključne tačke u Podgorici (Rimski Trg, Delta City, Bazar, TC Palada, City Kej, UDG, itd.) sa definisanim kapacitetima i koordinatama.
+   
