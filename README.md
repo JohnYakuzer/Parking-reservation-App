@@ -63,16 +63,17 @@ docker pull rdj917/public-projects:parking-app_v1.0
 docker run -p 5000:5000 <id-image-a>
 ```
 
-Podaci za Pristup (Admin)
+## Podaci za Pristup (Admin)
 
 Baza je unaprijed popunjena admin nalogom za testiranje sistema:
 
-    Username: admin
+    **Username: admin**
 
-    Password: root
+    **Password: root**
 
-    Email: admin@mail.com
+    **Email: admin@mail.com**
 
+### NOTE: DOCKER IMAGE PO DEFAULTU NE CUVA BAZU PODATAKA, DA BI PROMJENE I SAM DB OSTAO PERSISTANT, MORATE MOUNTATI VOLUME!!!
 Struktura Baze Podataka
 
 Sistem se automatski popunjava podacima koji obuhvataju:
